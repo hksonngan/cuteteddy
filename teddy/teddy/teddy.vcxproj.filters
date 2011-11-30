@@ -59,6 +59,12 @@
     <ClCompile Include="GeneratedFiles\Release\moc_tcanvas.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="tcamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tmesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="tmainwind.h">
@@ -77,6 +83,12 @@
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_tmainwind.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tcamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tmesh.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
