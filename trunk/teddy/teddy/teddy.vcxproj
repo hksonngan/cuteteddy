@@ -98,8 +98,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="tcamera.cpp" />
     <ClCompile Include="tcanvas.cpp" />
     <ClCompile Include="tmainwind.cpp" />
+    <ClCompile Include="tmesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="tmainwind.h">
@@ -128,6 +130,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_tmainwind.h" />
+    <ClInclude Include="tcamera.h" />
+    <ClInclude Include="tmesh.h" />
     <CustomBuild Include="tcanvas.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing %(Identity)...</Message>
