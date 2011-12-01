@@ -2,6 +2,7 @@
 #define TCAMERA_H
 
 #include <QObject>
+#include <QMatrix4x4>
 
 class TCamera : public QObject
 {
@@ -10,7 +11,7 @@ public:
 	~TCamera();
 
 private:
-	
+	QMatrix4x4 m_mat;
 };
 
 #endif // TCAMERA_H
