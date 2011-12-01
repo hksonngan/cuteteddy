@@ -1,9 +1,13 @@
 #include "tcanvas.h"
 
+#include "tcamera.h"
+#include "tentity.h"
+
 TCanvas::TCanvas(QWidget *parent)
 	: QGLWidget(parent)
 {
-
+	m_cam = new TCamera(this);
+	m_ent = new TEntity(this);
 }
 
 TCanvas::~TCanvas()
@@ -49,7 +53,7 @@ void TCanvas::paintGL()
 
 	glPushMatrix();
 	glLoadIdentity();
-	//scene->cameraLook();
+	
 
 	//if(scene->useAxis()){
 	//	glCallList(axisList);
@@ -76,8 +80,6 @@ void TCanvas::paintGL()
 	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, light_diffuse);
 	//drawLight(light_position);
 	glPopAttrib();
-
-
 
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);

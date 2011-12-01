@@ -2,6 +2,10 @@
 #define TCANVAS_H
 
 #include <QGLWidget>
+#include <QMatrix4x4>
+
+class TCamera;
+class TEntity;
 
 class TCanvas : public QGLWidget
 {
@@ -22,7 +26,8 @@ protected:
 	void wheelEvent(QWheelEvent * e);
 
 private:
-	
+	TCamera* m_cam;
+	TEntity* m_ent;
 };
 
 #endif // TCANVAS_H
