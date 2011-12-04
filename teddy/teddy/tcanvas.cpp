@@ -34,7 +34,7 @@ void TCanvas::initializeGL()
 
 void TCanvas::paintGL()
 {
-	//坐标轴材质
+	//材质
 	static GLfloat mat_diffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};//漫反射光颜色
 	static GLfloat mat_ambient[] = {0.8f, 0.8f, 0.8f, 0.8f};//环境光颜色	
 	static GLfloat mat_specular[] = {0.8f, 0.8f, 0.8f, 0.8f};//镜面反射光颜色
@@ -52,7 +52,6 @@ void TCanvas::paintGL()
 
 	glPushMatrix();
 	glLoadIdentity();
-	
 	m_ent->paintAll();
 
 	// 光照
@@ -60,12 +59,6 @@ void TCanvas::paintGL()
 	static GLfloat light_ambient[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	static GLfloat light_diffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	static GLfloat light_specular[] = {0.5f, 0.5f, 0.5f, 0.2f};
-
-	//Light* light = scene->light();
-	//light->fillDiffuse(light_diffuse);
-	//light->fillAmbient(light_ambient);
-	//light->fillSpecular(light_specular);
-	//light->fillLocation(light_position);
 
 	glPushAttrib(GL_LIGHTING_BIT);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, light_diffuse);
@@ -75,9 +68,13 @@ void TCanvas::paintGL()
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);	
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+	
+	// draw entity
+	glMultMatrixd(m_cam->matrixData());
+	glMultMatrixd(m_ent->matrixData());
 
-	//scene->buildingDisplay();
+
 
 	glPopMatrix();
 }
