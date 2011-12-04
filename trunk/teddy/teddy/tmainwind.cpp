@@ -47,6 +47,6 @@ void TMainWind::on_actionInfo_triggered()
 {
 	QMessageBox::about(this, tr("Application Information"), 
 		tr("A Sketching Interface for 3D Freeform Design \n"
-		"based on a paper by Takeo Igarashi, etc. (1999).\n\n"
+		"based on Takeo Igarashi etc., 1999.\n\n"
 		"Developer: YANG Hao <yangh2007@gmail.com>"));
 }

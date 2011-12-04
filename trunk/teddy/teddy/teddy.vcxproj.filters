@@ -59,6 +59,9 @@
     <ClCompile Include="tentity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tcamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="tmainwind.h">
@@ -82,6 +85,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tentity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tcamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

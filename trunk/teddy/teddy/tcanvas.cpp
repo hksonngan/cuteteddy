@@ -1,11 +1,17 @@
 #include "tcanvas.h"
 
+#include <QMouseEvent>
+#include <QVector3D>
+
 #include "tentity.h"
+#include "tcamera.h"
 #include "tmesh.h"
 
 TCanvas::TCanvas(QWidget *parent)
 	: QGLWidget(parent)
 {
+	m_cam = new TCamera(this);
+	m_cam->reset();
 	m_ent = new TMesh(this);
 }
 
@@ -52,7 +58,7 @@ void TCanvas::paintGL()
 
 	glPushMatrix();
 	glLoadIdentity();
-	m_ent->paintAll();
+	glMultMatrixd(m_cam->lookMatData());
 
 	// ¹âÕÕ
 	static GLfloat light_position[] = {-1.0f, 1.0f, 1.0f, 0.0f};
@@ -71,10 +77,7 @@ void TCanvas::paintGL()
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
 	
 	// draw entity
-	glMultMatrixd(m_cam->matrixData());
-	glMultMatrixd(m_ent->matrixData());
-
-
+	m_ent->paintAll();
 
 	glPopMatrix();
 }
@@ -85,18 +88,23 @@ void TCanvas::resizeGL(int w, int h)
 	glViewport((w - side) / 2, (h - side) / 2, side, side);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//scene->cameraProject();
+	glMultMatrixd(m_cam->projectMatData());
 	glMatrixMode(GL_MODELVIEW);
 }
 
 void TCanvas::mousePressEvent(QMouseEvent * e)
 {
-
+	m_mouseLastPos = e->posF();
 }
 
 void TCanvas::mouseMoveEvent(QMouseEvent * e)
 {
-
+	if(e->buttons() & Qt::LeftButton){
+		QVector3D trans(e->posF() - m_mouseLastPos);
+		m_ent->rotate(trans.length(), QVector3D::crossProduct(QVector3D(0, 0, 1), trans));
+		update();
+	}
+	m_mouseLastPos = e->posF();
 }
 
 void TCanvas::mouseReleaseEvent(QMouseEvent * e)

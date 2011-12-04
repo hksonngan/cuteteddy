@@ -12,7 +12,7 @@ public:
 	TMesh(QObject *parent = 0);
 	void paintEntity();
 private:
-	OpenMesh::TriMesh_ArrayKernelT<> m_mesh;
+	//OpenMesh::TriMesh_ArrayKernelT<> m_mesh;
 };
 
 #endif // TMESH_H
