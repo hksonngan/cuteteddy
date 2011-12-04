@@ -26,7 +26,6 @@ protected:
 	void wheelEvent(QWheelEvent * e);
 
 private:
-	TCamera* m_cam;
 	TEntity* m_ent;
 };
 

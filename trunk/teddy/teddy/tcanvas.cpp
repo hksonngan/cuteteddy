@@ -1,13 +1,12 @@
 #include "tcanvas.h"
 
-#include "tcamera.h"
 #include "tentity.h"
+#include "tmesh.h"
 
 TCanvas::TCanvas(QWidget *parent)
 	: QGLWidget(parent)
 {
-	m_cam = new TCamera(this);
-	m_ent = new TEntity(this);
+	m_ent = new TMesh(this);
 }
 
 TCanvas::~TCanvas()
@@ -47,22 +46,14 @@ void TCanvas::paintGL()
 	glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
 
 	// 开始绘制
-	qglClearColor(Qt::darkCyan);
+	qglClearColor(Qt::gray);
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glPushMatrix();
 	glLoadIdentity();
 	
-
-	//if(scene->useAxis()){
-	//	glCallList(axisList);
-	//	glCallList(sphereList);
-	//}
-	//if(scene->useTexts())
-	//	drawAxisTexts(axisSize);
-
-	//drawBuildingWarnings();
+	m_ent->paintAll();
 
 	// 光照
 	static GLfloat light_position[] = {-1.0f, 1.0f, 1.0f, 0.0f};
