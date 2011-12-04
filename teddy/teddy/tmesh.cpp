@@ -1,11 +1,12 @@
 #include "tmesh.h"
 
-TMesh::TMesh()
+TMesh::TMesh(QObject *parent /* = 0 */)
+	: TEntity(parent)
 {
 
 }
 
-TMesh::~TMesh()
+void TMesh::paintEntity()
 {
 
 }

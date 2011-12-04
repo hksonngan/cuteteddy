@@ -7,7 +7,7 @@
 class TEntity : public QObject
 {
 public:
-	TEntity(QObject *parent);
+	TEntity(QObject *parent = 0);
 	~TEntity();
 
 	inline QMatrix4x4 matrix() const {return m_mat;}
@@ -17,7 +17,8 @@ public:
 	inline void translate(double x, double y, double z) 
 		{m_mat.translate(x, y, z);}
 
-	virtual void paint3D(){}
+	void paintAll();
+	virtual void paintEntity() = 0;
 
 private:
 	QMatrix4x4 m_mat;
