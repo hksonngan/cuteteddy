@@ -25,6 +25,8 @@ protected:
 
 private:
 	TEntity* m_ent;
+	TCamera* m_cam;
+	QPointF m_mouseLastPos;
 };
 
 #endif // TCANVAS_H
