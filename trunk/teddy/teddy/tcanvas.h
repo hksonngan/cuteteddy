@@ -9,8 +9,6 @@ class TEntity;
 
 class TCanvas : public QGLWidget
 {
-	Q_OBJECT
-
 public:
 	TCanvas(QWidget *parent = 0);
 	~TCanvas();
