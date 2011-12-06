@@ -10,9 +10,11 @@ class TMesh : public TEntity
 {
 public:
 	TMesh(QObject *parent = 0);
+	bool open(const QString& filename);
+	bool save(const QString& filename);
 	void paintEntity();
 private:
-	//OpenMesh::TriMesh_ArrayKernelT<> m_mesh;
+	OpenMesh::TriMesh_ArrayKernelT<> m_mesh;
 };
 
 #endif // TMESH_H
