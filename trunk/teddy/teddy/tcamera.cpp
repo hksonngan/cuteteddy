@@ -11,7 +11,13 @@ TCamera::TCamera(const QVector3D& eye,
 	bool perspective, QObject *parent)
 	: QObject(parent)
 {
-	reset(eye, center, nearDepth, farDepth, width, height, up, true);
+	m_projectMat.setToIdentity();
+	if(perspective)
+		m_projectMat.frustum(-width/2.0, width/2.0, -height/2.0, height/2.0, nearDepth, farDepth);
+	else
+		m_projectMat.ortho(-width/2.0, width/2.0, -height/2.0, height/2.0, nearDepth, farDepth);
+	m_lookMat.setToIdentity();
+	m_lookMat.lookAt(eye, center, up);
 }
 
 TCamera::~TCamera()

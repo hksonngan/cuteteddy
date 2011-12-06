@@ -3,15 +3,11 @@
 #include <QMouseEvent>
 #include <QVector3D>
 
-#include "tentity.h"
-#include "tcamera.h"
-#include "tmesh.h"
-
 TCanvas::TCanvas(QWidget *parent)
 	: QGLWidget(parent)
 {
-	m_cam = new TCamera(this);
-	m_cam->reset();
+	m_cam = new TCamera(QVector3D(0, 0, 2), QVector3D(0, 0, 0), 
+		0.1, 50.0, 0.2, 0.2, QVector3D(0, 1, 0), true, this);
 	m_ent = new TMesh(this);
 }
 

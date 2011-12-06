@@ -4,8 +4,9 @@
 #include <QGLWidget>
 #include <QMatrix4x4>
 
-class TCamera;
-class TEntity;
+#include "tcamera.h"
+#include "tentity.h"
+#include "tmesh.h"
 
 class TCanvas : public QGLWidget
 {
