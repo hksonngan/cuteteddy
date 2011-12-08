@@ -14,6 +14,8 @@ public:
 	TMainWind(QWidget *parent = 0, Qt::WFlags flags = 0);
 	~TMainWind();
 
+	void init();
+
 public slots:
 	void on_actionNew_triggered();
 	void on_actionOpen_triggered();

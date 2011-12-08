@@ -3,22 +3,36 @@
 
 #include <QGLWidget>
 #include <QMatrix4x4>
+#include <QFileInfo>
 
 #include "tmesh.h"
 
 class TCanvas : public QGLWidget
 {
+	Q_OBJECT
+	Q_PROPERTY(TMode mode READ mode WRITE setMode)
+
 public:
+	enum TMode {Creation, Bending, Painting, Extrusion};
 	TCanvas(QWidget *parent = 0);
 	~TCanvas();
 
-	//inline TMesh* object() const {return m_object;}
+	inline void setMode(TMode m){m_mode = m;}
+	inline TMode mode() const {return m_mode;}
+
 	inline void setFileInfo(const QFileInfo& fi) {m_fileInfo = fi;}
 	inline QFileInfo fileInfo() const {return m_fileInfo;}
 	inline bool fileExists() const {return m_fileInfo.exists();}
 
 	inline bool open();
 	inline bool save();
+
+signals:
+	void restart();
+	void creationFinished();
+	void bendingFinished();
+	void toEdit();
+	void extrusionFinished();
 
 protected:
 	void initializeGL();
@@ -35,6 +49,7 @@ protected:
 	void wheelEvent(QWheelEvent * e);
 
 private:
+	TMode m_mode;
 	TMesh* m_object;
 
 	QFileInfo m_fileInfo;

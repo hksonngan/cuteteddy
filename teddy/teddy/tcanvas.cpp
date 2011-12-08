@@ -62,7 +62,7 @@ void TCanvas::paintGL()
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
 
-	qglClearColor(Qt::darkGray);
+	qglClearColor(Qt::gray);
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -70,7 +70,7 @@ void TCanvas::paintGL()
 	glLoadIdentity();
 
 	glMultMatrixd(m_cammat.constData());
-	glMultMatrixd(m_modelmat.constData());
+	glMultMatrixd(m_object->matrixData());
 	m_object->paint();
 
 	glPopMatrix();
