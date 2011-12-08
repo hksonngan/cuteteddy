@@ -135,11 +135,24 @@ QProgressBar::chunk {
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
-   <addaction name="actionUndo"/>
-   <addaction name="actionRedo"/>
    <addaction name="actionInfo"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="editToolBar">
+   <property name="windowTitle">
+    <string>Edit ToolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="actionInit"/>
+   <addaction name="actionBend"/>
+  </widget>
   <action name="actionNew">
    <property name="icon">
     <iconset resource="tmainwind.qrc">
@@ -272,6 +285,30 @@ QProgressBar::chunk {
    </property>
    <property name="toolTip">
     <string>Exit application</string>
+   </property>
+  </action>
+  <action name="actionInit">
+   <property name="icon">
+    <iconset resource="tmainwind.qrc">
+     <normaloff>:/TMainWind/Resources/toolbar/Loading.png</normaloff>:/TMainWind/Resources/toolbar/Loading.png</iconset>
+   </property>
+   <property name="text">
+    <string>Init</string>
+   </property>
+   <property name="toolTip">
+    <string>Init creation</string>
+   </property>
+  </action>
+  <action name="actionBend">
+   <property name="icon">
+    <iconset resource="tmainwind.qrc">
+     <normaloff>:/TMainWind/Resources/toolbar/Modify.png</normaloff>:/TMainWind/Resources/toolbar/Modify.png</iconset>
+   </property>
+   <property name="text">
+    <string>Bend</string>
+   </property>
+   <property name="toolTip">
+    <string>Bend ?</string>
    </property>
   </action>
  </widget>
