@@ -17,6 +17,74 @@
    <iconset resource="tmainwind.qrc">
     <normaloff>:/TMainWind/Resources/toolbar/Picture.png</normaloff>:/TMainWind/Resources/toolbar/Picture.png</iconset>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+	background-color: gray;
+	color: #DDDDDD
+} 
+QMenuBar {
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 lightgray, stop:1 darkgray);
+}
+QMenuBar::item {
+	padding: 1px 7px;
+	background: transparent;
+}
+QMenuBar::item:selected { /* when selected using mouse or keyboard */
+	background: #a8a8a8;
+}
+QMenuBar::item:pressed {
+	background: #888888;
+}
+QMenu {
+	background-color: #323232; /* sets background of the menu */
+	color: white;
+	border: 1px solid black;
+} 
+QMenu::item {
+	background-color: transparent;
+} 
+QMenu::item:selected { /* when user selects item using mouse or keyboard */
+	background-color: #777777;
+}
+QMenu::item:checked {
+	background-color: #456789
+}
+QToolBar {
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 #525252, stop:1 #000000);	
+	border-color:#2020FF
+}
+QStatusBar {
+	background-color: black;
+	color: #DDDDDD
+}
+QDialog {
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 #000000, stop:1 #767676);
+	color: #dddddd; 
+}
+QScrollBar:horizontal {
+	height: 20px; 
+}
+QScrollBar:vertical {
+	width: 20px; 
+}
+QTabWidget::pane {
+	border-top: 2px solid #C2C7CB;
+}
+QGroupBox {color:white}
+.QLabel { 
+	color: white;  
+}
+QProgressBar {
+     border: 1px solid grey;
+     border-radius: 3px;
+     text-align: center;
+}
+QProgressBar::chunk {
+     background-color: darkgrey;
+     width: 5px;
+     margin: 0.5px;
+}</string>
+  </property>
   <widget class="QWidget" name="centralWidget"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -24,7 +92,7 @@
      <x>0</x>
      <y>0</y>
      <width>700</width>
-     <height>23</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
