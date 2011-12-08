@@ -166,15 +166,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tcamera.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\tcanvas.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\tentity.cpp"
 				>
 			</File>
 			<File
@@ -192,19 +184,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\stylesheet.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tcamera.h"
-				>
-			</File>
-			<File
 				RelativePath=".\tcanvas.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tentity.h"
 				>
 			</File>
 			<File

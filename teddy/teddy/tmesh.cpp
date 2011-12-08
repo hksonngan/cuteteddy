@@ -5,7 +5,7 @@
 #include <gl/GLUT.H>
 
 TMesh::TMesh(QObject *parent /* = 0 */)
-	: TEntity(parent)
+	: QObject(parent)
 {
 	m_mesh.request_vertex_normals();
 	Q_ASSERT(m_mesh.has_vertex_normals());
@@ -31,7 +31,7 @@ bool TMesh::save(const QString& filename)
 	return true;
 }
 
-void TMesh::paintEntity()
+void TMesh::paint()
 {
 	/*TriMesh::FaceIter fit;
 	for(fit = m_mesh.faces_begin(); 
