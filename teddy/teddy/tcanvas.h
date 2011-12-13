@@ -4,6 +4,7 @@
 #include <QGLWidget>
 #include <QMatrix4x4>
 #include <QFileInfo>
+#include <QPolygonF>
 
 #include "tmesh.h"
 
@@ -51,6 +52,7 @@ protected:
 private:
 	TMode m_mode;
 	TMesh* m_object;
+	QPolygonF m_sketch;
 
 	QFileInfo m_fileInfo;
 

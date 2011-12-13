@@ -117,12 +117,15 @@ void TCanvas::camMoveCenter(const QVector3D& tt)
 void TCanvas::mousePressEvent(QMouseEvent * e)
 {
 	m_mouseLastPos = e->posF();
-	if(e->buttons() & Qt::LeftButton)
+	if(e->buttons() & Qt::RightButton)
 		setCursor(Qt::OpenHandCursor);
 	else if(e->buttons() & Qt::MidButton)
 		setCursor(Qt::SizeAllCursor);
-	else
+	else{// left button
+		m_sketch.clear();
+		m_sketch.append(m_mouseLastPos);
 		setCursor(Qt::ArrowCursor);
+	}
 }
 
 void TCanvas::mouseMoveEvent(QMouseEvent * e)
@@ -131,13 +134,15 @@ void TCanvas::mouseMoveEvent(QMouseEvent * e)
 	double side = qMax(width(), height());
 	t.setX( - t.x());
 	t /= side / 3.0;
-	if(e->buttons() & Qt::LeftButton){
+	if(e->buttons() & Qt::RightButton){
 		camMoveView(t);
 		setCursor(Qt::ClosedHandCursor);
 		update();
 	}else if(e->buttons() & Qt::MidButton){
 		camMoveCenter(t);
 		update();
+	}else{
+		m_sketch.append(e->posF());
 	}
 	m_mouseLastPos = e->posF();
 }
@@ -145,6 +150,15 @@ void TCanvas::mouseMoveEvent(QMouseEvent * e)
 void TCanvas::mouseReleaseEvent(QMouseEvent * e)
 {
 	setCursor(Qt::ArrowCursor);
+	if(m_mode == Creation){
+
+	}else if(m_mode == Painting){
+
+	}else if(m_mode == Extrusion){
+
+	}else if(m_mode == Bending){
+
+	}
 }
 
 void TCanvas::wheelEvent(QWheelEvent * e)
