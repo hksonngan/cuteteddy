@@ -51,6 +51,7 @@ void TMainWind::init()
 	bending->addTransition(m_canvas, SIGNAL(restart()), creation);
 	painting->addTransition(m_canvas, SIGNAL(restart()), creation);
 	extrusion->addTransition(m_canvas, SIGNAL(restart()), creation);
+	
 
 	machine->addState(creation);
 	machine->addState(bending);
@@ -89,6 +90,6 @@ void TMainWind::on_actionInfo_triggered()
 {
 	QMessageBox::about(this, tr("Application Information"), 
 		tr("A Sketching Interface for 3D Freeform Design \n"
-		"based on Takeo Igarashi etc., 1999.\n\n"
-		"Developer: YANG Hao <yangh2007@gmail.com>"));
+		"based on Takeo Igarashi etc. 1999.\n\n"
+		"by YANG Hao <yangh2007@gmail.com>"));
 }
