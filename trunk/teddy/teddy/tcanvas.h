@@ -44,6 +44,8 @@ protected:
 	void camMoveCenter(const QVector3D& trans);
 	inline void camZoom(double d){camMoveView(QVector3D(0, 0, d));}
 
+	//void paintEvent(QPaintEvent* e);
+	//void resizeEvent(QResizeEvent * e);
 	void mousePressEvent(QMouseEvent * e);
 	void mouseMoveEvent(QMouseEvent * e);
 	void mouseReleaseEvent(QMouseEvent * e);

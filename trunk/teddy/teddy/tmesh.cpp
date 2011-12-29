@@ -39,5 +39,11 @@ void TMesh::paint()
 		fit ++){
 		
 	}*/
-	glutSolidTeapot(0.5);
+	//glutSolidTeapot(0.5);
+	glBegin(GL_TRIANGLES);
+	glNormal3d(0, 0, 1);
+	glVertex2d(1, 0);
+	glVertex2d(1, 1);
+	glVertex2d(0, 1);
+	glEnd();
 }
