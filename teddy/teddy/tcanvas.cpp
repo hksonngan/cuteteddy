@@ -62,7 +62,7 @@ void TCanvas::paintGL()
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
 
-	qglClearColor(Qt::gray);
+	glClearColor(0.5, 0.5, 0.5, 1.0);
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -114,6 +114,46 @@ void TCanvas::camMoveCenter(const QVector3D& tt)
 	m_cammat.lookAt(m_cam_eye, m_cam_center, m_cam_up);
 }
 
+//void TCanvas::paintEvent(QPaintEvent* e)
+//{
+//	makeCurrent();
+//	glMatrixMode(GL_MODELVIEW);
+//	glPushMatrix();
+//
+//	qglClearColor(Qt::gray);
+//	glShadeModel(GL_SMOOTH);
+//	glEnable(GL_DEPTH_TEST);
+//	//glEnable(GL_CULL_FACE);
+//	glEnable(GL_LIGHTING);
+//	glEnable(GL_LIGHT0);
+//	//glEnable(GL_MULTISAMPLE);
+//	static GLfloat lightPosition[4] = { 0.5, 5.0, 7.0, 1.0 };
+//	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+//
+//	//resizeGL(width(), height());
+//
+//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//	glLoadIdentity();
+//	glMultMatrixd(m_cammat.constData());
+//	glMultMatrixd(m_object->matrixData());
+//
+//	m_object->paint();
+//
+//	glShadeModel(GL_FLAT);
+//	//glDisable(GL_CULL_FACE);
+//	glDisable(GL_DEPTH_TEST);
+//	glDisable(GL_LIGHTING);
+//
+//	glMatrixMode(GL_MODELVIEW);
+//	glPopMatrix();
+//
+//
+//	QPainter painter(this);
+//	painter.setRenderHint(QPainter::Antialiasing);
+//	painter.drawPolyline(m_sketch);
+//	painter.end();
+//}
+
 void TCanvas::mousePressEvent(QMouseEvent * e)
 {
 	m_mouseLastPos = e->posF();
@@ -143,6 +183,7 @@ void TCanvas::mouseMoveEvent(QMouseEvent * e)
 		update();
 	}else{
 		m_sketch.append(e->posF());
+		update();
 	}
 	m_mouseLastPos = e->posF();
 }
