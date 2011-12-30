@@ -28,7 +28,7 @@ void TMainWind::init()
 
 	QStateMachine* machine = new QStateMachine(this);
 	QState* creation = new QState;
-	QState* bending = new QState;
+	QState* bending = new QState; // transformation
 	QState* painting = new QState;
 	QState* extrusion = new QState;
 
@@ -63,17 +63,31 @@ void TMainWind::init()
 
 void TMainWind::on_actionNew_triggered()
 {
-	
+	m_canvas->neww();
 }
 
 void TMainWind::on_actionOpen_triggered()
 {
-	QString filePath = QFileDialog::getOpenFileName(this, tr("Select file..."), QString(), QString());
+	QString filePath = QFileDialog::getOpenFileName(this, tr("Select a mesh file..."), 
+		QString(), tr("OFF file (*.off)"));
+	m_canvas->open(filePath);
 }
 
 void TMainWind::on_actionSave_triggered()
 {
+	if(!m_canvas->fileExists()){
+		QString filePath = QFileDialog::getSaveFileName(this, tr("Save file as..."), 
+			QString(), tr("OFF file (*.off)"));
+		m_canvas->save(filePath);
+	}else
+		m_canvas->save();
+}
 
+void TMainWind::on_actionSaveAs_triggered()
+{
+	QString filePath = QFileDialog::getSaveFileName(this, tr("Save file as..."), 
+		QString(), tr("OFF file (*.off)"));
+	m_canvas->save(filePath);
 }
 
 void TMainWind::on_actionUndo_triggered()
@@ -93,3 +107,4 @@ void TMainWind::on_actionInfo_triggered()
 		"based on Takeo Igarashi etc. 1999.\n\n"
 		"by YANG Hao <yangh2007@gmail.com>"));
 }
+
