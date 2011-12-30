@@ -6,27 +6,31 @@
 #include <QFileInfo>
 #include <QPolygonF>
 
-#include "tmesh.h"
+#include "tscene.h"
+
+#define UNTITLED "untitled.off"
 
 class TCanvas : public QGLWidget
 {
 	Q_OBJECT
 	Q_PROPERTY(TMode mode READ mode WRITE setMode)
+	Q_ENUMS(TMode)
 
 public:
 	enum TMode {Creation, Bending, Painting, Extrusion};
 	TCanvas(QWidget *parent = 0);
 	~TCanvas();
 
-	inline void setMode(TMode m){m_mode = m;}
+	void setMode(TMode m);
 	inline TMode mode() const {return m_mode;}
 
 	inline void setFileInfo(const QFileInfo& fi) {m_fileInfo = fi;}
 	inline QFileInfo fileInfo() const {return m_fileInfo;}
 	inline bool fileExists() const {return m_fileInfo.exists();}
 
-	inline bool open();
-	inline bool save();
+	void neww();
+	void open(const QString& filePath = tr(UNTITLED));
+	void save(const QString& filePath = QString());
 
 signals:
 	void restart();
@@ -37,15 +41,9 @@ signals:
 
 protected:
 	void initializeGL();
-	void paintGL();
 	void resizeGL(int w, int h);
 
-	void camMoveView(const QVector3D& trans);
-	void camMoveCenter(const QVector3D& trans);
-	inline void camZoom(double d){camMoveView(QVector3D(0, 0, d));}
-
-	//void paintEvent(QPaintEvent* e);
-	//void resizeEvent(QResizeEvent * e);
+	void paintEvent(QPaintEvent* e);
 	void mousePressEvent(QMouseEvent * e);
 	void mouseMoveEvent(QMouseEvent * e);
 	void mouseReleaseEvent(QMouseEvent * e);
@@ -53,17 +51,16 @@ protected:
 
 private:
 	TMode m_mode;
-	TMesh* m_object;
+	TScene* m_object;
 	QPolygonF m_sketch;
 
 	QFileInfo m_fileInfo;
 
-	QMatrix4x4 m_modelmat;
-	QMatrix4x4 m_cammat;
-	QMatrix4x4 m_projmat;
-	QVector3D m_cam_center, m_cam_eye, m_cam_up;
-
 	QPointF m_mouseLastPos;
+	QCursor m_penCursor;
+
+	double m_stepLength;
+	double m_stepLengthRemained;
 };
 
 #endif // TCANVAS_H
