@@ -3,13 +3,16 @@
 #include <QString>
 #include <QtOpenGL/QtOpenGL>
 
+inline void qglVertex3d(const QVector3D& v){glVertex3d(v.x(), v.y(), v.z());}
+inline void qglNormal3d(const QVector3D& v){glNormal3d(v.x(), v.y(), v.z());}
+
 TScene::TScene(QObject *parent /* = 0 */)
 	: QObject(parent)
 {
 	m_mesh.request_vertex_normals();
 	Q_ASSERT(m_mesh.has_vertex_normals());
 
-	m_cam_eye = QVector3D(0, 1.0, 2.0);
+	m_cam_eye = QVector3D(0, 0, 2.0);
 	m_cam_center = QVector3D(0, 0, 0);
 	m_cam_up = QVector3D(0, 1, 0);
 
@@ -42,6 +45,8 @@ void TScene::paint()
 	glMultMatrixd(m_cam.constData());
 	glMultMatrixd(m_mat.constData());
 
+	
+
 	for(TriMesh::FaceIter fit = m_mesh.faces_begin(); 
 		fit != m_mesh.faces_end();++ fit)
 	{		
@@ -56,6 +61,15 @@ void TScene::paint()
 		}
 		glEnd();
 	}
+
+	glBegin(GL_TRIANGLES);
+	for(int i = 0; i < markers.size(); i++){
+		QVector3D v = markers.at(i);
+		qglVertex3d(v);
+		qglVertex3d(v + QVector3D(0, .1, 0));
+		qglVertex3d(v + QVector3D(.1, 0, 0));
+	}
+	glEnd();
 }
 
 void TScene::setupViewport( int w, int h )
@@ -69,6 +83,15 @@ void TScene::setupViewport( int w, int h )
 	glLoadIdentity();	
 	glMultMatrixd(m_proj.constData());
 	glMatrixMode(GL_MODELVIEW);
+}
+
+
+TScene::TriMesh::Point TScene::mapToZPlane( const QPointF& screenP, double z )
+{
+	int side = qMax(m_canvasWidth, m_canvasHeight);
+	
+
+	
 }
 
 void TScene::camMoveView(const QVector3D& tt)
@@ -104,12 +127,6 @@ bool TScene::build( const QPolygonF& xyseeds )
 {
 	m_mesh.clear();
 	
-
-	return true;
-}
-
-TScene::TriMesh::Point TScene::mapToZPlane( const QPointF& screenP )
-{
 	
-	return TriMesh::Point();
+	return true;
 }

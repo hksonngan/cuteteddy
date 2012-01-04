@@ -33,9 +33,9 @@ public:
 	// seeds polygons' edge are equal length, seeds.last() != seeds.first()
 	bool build(const QPolygonF& seeds);
 
-protected:
+//protected:
 	//QPolygonF resample(const QPolygonF& seeds, double precScale = 1.0);
-	TriMesh::Point mapToZPlane(const QPointF& screenP);
+	TriMesh::Point mapToZPlane(const QPointF& screenP, double z = 0);
 
 private:
 	TriMesh m_mesh;
@@ -45,6 +45,9 @@ private:
 	int m_canvasWidth, m_canvasHeight;
 	
 	QVector3D m_cam_eye, m_cam_center, m_cam_up;
+
+	QList<QVector3D> markers;
 };
+
 
 #endif // TSCENE_H

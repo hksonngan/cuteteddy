@@ -51,7 +51,7 @@ protected:
 
 private:
 	TMode m_mode;
-	TScene* m_object;
+	TScene* m_scene;
 	QPolygonF m_sketch;
 
 	QFileInfo m_fileInfo;
