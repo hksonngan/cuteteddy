@@ -13,7 +13,7 @@ TCanvas::TCanvas(QWidget *parent)
 	m_fileInfo(tr(UNTITLED)), 
 	m_penCursor(QPixmap(":/TMainWind/Resources/other/black/pencil_icon&16.png"), 0, 16)
 {
-	m_object = new TScene(this);
+	m_scene = new TScene(this);
 
 	setAutoFillBackground(false);
 	setCursor(m_penCursor);
@@ -33,7 +33,7 @@ void TCanvas::initializeGL()
 
 void TCanvas::resizeGL(int w, int h)
 {
-	m_object->setupViewport(w, h);
+	m_scene->setupViewport(w, h);
 }
 
 
@@ -52,20 +52,22 @@ void TCanvas::paintEvent(QPaintEvent* e)
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_POLYGON_SMOOTH);
 	static GLfloat lightPosition[4] = { 6.5, 10.0, 14.0, 1.0 };
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
-	m_object->setupViewport(width(), height());
+	m_scene->setupViewport(width(), height());
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	m_object->paint();
+	m_scene->paint();
 
 	glShadeModel(GL_FLAT);
 	//glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
+	glDisable(GL_POLYGON_SMOOTH);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
@@ -73,7 +75,7 @@ void TCanvas::paintEvent(QPaintEvent* e)
 
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
-	painter.setPen(QPen(Qt::red, 2.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+	painter.setPen(QPen(Qt::yellow, 2.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 	painter.drawPolyline(m_sketch);
 	painter.end();
 }
@@ -90,6 +92,8 @@ void TCanvas::mousePressEvent(QMouseEvent * e)
 		m_sketch.append(m_mouseLastPos);
 		setCursor(m_penCursor);
 	}
+
+	m_scene->mapToZPlane(e->posF());
 }
 
 void TCanvas::mouseMoveEvent(QMouseEvent * e)
@@ -99,12 +103,12 @@ void TCanvas::mouseMoveEvent(QMouseEvent * e)
 	t.setX( - t.x());
 	t /= side / 20.0;
 	if(e->buttons() & Qt::RightButton){
-		m_object->rotate( - t.x() * 5, QVector3D(0, 1, 0));
-		m_object->rotate(t.y() * 5, QVector3D(1, 0, 0));
+		m_scene->rotate( - t.x() * 5, QVector3D(0, 1, 0));
+		m_scene->rotate(t.y() * 5, QVector3D(1, 0, 0));
 		setCursor(Qt::ClosedHandCursor);
 		update();
 	}else if(e->buttons() & Qt::MidButton){
-		m_object->translate(- t);
+		m_scene->translate(- t);
 		update();
 	}else{
 		if(m_sketch.empty()){
@@ -128,10 +132,9 @@ void TCanvas::mouseReleaseEvent(QMouseEvent * e)
 {
 	setCursor(m_penCursor);
 	if(m_mode == Creation){
-		if(m_object->build(m_sketch)){
+		if(m_scene->build(m_sketch)){
 			emit creationFinished();
 			m_sketch.clear();
-			update();
 		}
 	}else if(m_mode == Painting){
 
@@ -140,24 +143,25 @@ void TCanvas::mouseReleaseEvent(QMouseEvent * e)
 	}else if(m_mode == Bending){
 
 	}
+	update();
 }
 
 void TCanvas::wheelEvent(QWheelEvent * e)
 {
-	m_object->camZoom(e->delta() / 800.0);
+	m_scene->camZoom(e->delta() / 800.0);
 	update();
 }
 
 void TCanvas::neww()
 {
-	m_object->deleteLater();
-	m_object = new TScene(this);
+	m_scene->deleteLater();
+	m_scene = new TScene(this);
 	update();
 }
 
 void TCanvas::open( const QString& filePath /*= tr("untitled.off")*/ )
 {
-	if(m_object->open(filePath)){
+	if(m_scene->open(filePath)){
 		m_fileInfo = QFileInfo(filePath);
 		update();
 	}
@@ -166,8 +170,8 @@ void TCanvas::open( const QString& filePath /*= tr("untitled.off")*/ )
 void TCanvas::save( const QString& filePath /*= QString()*/ )
 {
 	if(filePath == QString()){
-		m_object->save(m_fileInfo.absolutePath());
-	}else if(m_object->save(filePath)){
+		m_scene->save(m_fileInfo.absolutePath());
+	}else if(m_scene->save(filePath)){
 		m_fileInfo = QFileInfo(filePath);
 		update();
 	}		
