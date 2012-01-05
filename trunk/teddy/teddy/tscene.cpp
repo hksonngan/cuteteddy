@@ -67,8 +67,8 @@ void TScene::paintMarkers()
 	glMultMatrixd((m_mat * m_cam).constData());
 
 	glBegin(GL_LINE_LOOP);
-	for(int i = 0; i < seeds.size(); i++)
-		glVertex3d(seeds[i][0], seeds[i][1], seeds[i][2]);
+	for(int i = 0; i < m_seeds.size(); i++)
+		qglVertex3d(m_seeds[i]);
 	glEnd();
 }
 
@@ -86,7 +86,7 @@ void TScene::setupViewport( int w, int h )
 }
 
 
-QList<TScene::TriMesh::Point> TScene::mapToZPlane( const QVector<QPointF>& screenPs, double z /*= 1.0*/ )
+QList<QVector3D> TScene::mapToZPlane( const QVector<QPointF>& screenPs, double z /*= 1.0*/ )
 {
 	GLint viewport[4];
 	GLdouble modelview[16];
@@ -99,7 +99,7 @@ QList<TScene::TriMesh::Point> TScene::mapToZPlane( const QVector<QPointF>& scree
 	viewport[1] = (m_canvasHeight - side) / 2;
 	viewport[2] = viewport[3] = side;
 
-	QList<TriMesh::Point> results;
+	QList<QVector3D> results;
 
 	foreach(QPointF screenP, screenPs){
 		winX = screenP.x();
@@ -111,8 +111,7 @@ QList<TScene::TriMesh::Point> TScene::mapToZPlane( const QVector<QPointF>& scree
 			viewport, &posX, &posY, &posZ))
 		{
 			QVector3D p(posX, posY, posZ);
-			p = m_cam_eye + (p - m_cam_eye).normalized() * z;
-			results.append(TriMesh::Point(p.x(), p.y(), p.z()));
+			results.append(m_cam_eye + (p - m_cam_eye).normalized() * z);
 		}
 	}
 	return results;
@@ -149,11 +148,14 @@ void TScene::camMoveCenter(const QVector3D& tt)
 
 bool TScene::build( const QPolygonF& xyseeds )
 {
-	QList<TriMesh::Point> ponts = mapToZPlane(xyseeds, (m_cam_eye - m_cam_center).length());
+	QList<QVector3D> ponts 
+		= mapToZPlane(xyseeds, (m_cam_eye - m_cam_center).length());
 	
-	seeds.clear();
-	seeds << ponts;
+	m_seeds.clear();
+	m_seeds << ponts;
 	
+	tTriangulate(ponts, m_mesh);
+	tReTriangulate(m_mesh);
 	
 	return true;
 }

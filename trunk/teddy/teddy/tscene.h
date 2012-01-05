@@ -3,15 +3,10 @@
 
 #include <QMatrix4x4>
 #include <QPolygonF>
-
-// need to define _USE_MATH_DEFINES and NOMINMAX in preprocess tab
-#include <OpenMesh/Core/IO/MeshIO.hh>
-#include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
+#include "talgorithm.h"
 
 class TScene : public QObject
 {
-	typedef OpenMesh::TriMesh_ArrayKernelT<> TriMesh;
-
 public:
 	TScene(QObject *parent = 0);
 
@@ -33,10 +28,7 @@ public:
 
 	// seeds polygons' edge are equal length, seeds.last() != seeds.first()
 	bool build(const QPolygonF& seeds);
-
-//protected:
-	//QPolygonF resample(const QPolygonF& seeds, double precScale = 1.0);
-	QList<TriMesh::Point> mapToZPlane(const QVector<QPointF>& screenPs, double z = 1.0);
+	QList<QVector3D> mapToZPlane(const QVector<QPointF>& screenPs, double z = 1.0);
 
 private:
 	TriMesh m_mesh;
@@ -47,7 +39,7 @@ private:
 	
 	QVector3D m_cam_eye, m_cam_center, m_cam_up;
 
-	QList<TriMesh::Point> seeds;
+	QList<QVector3D> m_seeds;
 };
 
 
