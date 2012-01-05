@@ -28,6 +28,7 @@ public:
 	bool save(const QString& filename);
 	
 	void paint();
+	void paintMarkers();
 	void setupViewport(int w, int h);
 
 	// seeds polygons' edge are equal length, seeds.last() != seeds.first()
@@ -35,7 +36,7 @@ public:
 
 //protected:
 	//QPolygonF resample(const QPolygonF& seeds, double precScale = 1.0);
-	TriMesh::Point mapToZPlane(const QPointF& screenP, double z = 0);
+	QList<TriMesh::Point> mapToZPlane(const QVector<QPointF>& screenPs, double z = 1.0);
 
 private:
 	TriMesh m_mesh;
@@ -46,7 +47,7 @@ private:
 	
 	QVector3D m_cam_eye, m_cam_center, m_cam_up;
 
-	QList<QVector3D> markers;
+	QList<TriMesh::Point> seeds;
 };
 
 

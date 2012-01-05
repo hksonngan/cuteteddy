@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="tmainwind.qrc">
-    <normaloff>:/TMainWind/Resources/toolbar/Picture.png</normaloff>:/TMainWind/Resources/toolbar/Picture.png</iconset>
+    <normaloff>:/TMainWind/Resources/other/black/pencil_icon&amp;48.png</normaloff>:/TMainWind/Resources/other/black/pencil_icon&amp;48.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QMainWindow {
@@ -54,7 +54,7 @@ QToolBar {
 	border-color:#2020FF
 }
 QStatusBar {
-	background-color: black;
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 black, stop:1 #525252);
 	color: #DDDDDD
 }
 QDialog {
