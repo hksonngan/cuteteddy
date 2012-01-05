@@ -11,7 +11,7 @@
 TCanvas::TCanvas(QWidget *parent)
 	: QGLWidget(parent),
 	m_fileInfo(tr(UNTITLED)), 
-	m_penCursor(QPixmap(":/TMainWind/Resources/other/black/pencil_icon&16.png"), 0, 16)
+	m_penCursor(QPixmap(":/TMainWind/Resources/other/white/pencil_icon&16.png"), 0, 16)
 {
 	m_scene = new TScene(this);
 
@@ -45,22 +45,45 @@ void TCanvas::paintEvent(QPaintEvent* e)
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
-	qglClearColor(Qt::gray);
+	qglClearColor(Qt::black);
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_POLYGON_SMOOTH);
-	static GLfloat lightPosition[4] = { 6.5, 10.0, 14.0, 1.0 };
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
 	m_scene->setupViewport(width(), height());
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
 
+	static GLfloat m_diffuse[] = {1.f, 1.f, 1.f, 1.0f};//漫反射光颜色
+	static GLfloat m_ambient[] = {1.f, 1.f, 1.f, 1.f};//环境光颜色	
+	static GLfloat m_specular[] = {1.f, 1.f, 1.f, 1.f};//镜面反射光颜色
+	static GLfloat m_shininess = 1.0f;//镜面指数
+
+	glMaterialfv(GL_FRONT, GL_AMBIENT, m_ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, m_diffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, m_specular);
+	glMaterialf(GL_FRONT, GL_SHININESS, m_shininess);
+
+	m_scene->paintMarkers();
+
+	static GLfloat mat_diffuse[] = {0.5f, 0.5f, 0.8f, .5f};//漫反射光颜色
+	static GLfloat mat_ambient[] = {0.5f, 0.8f, 0.5f, 0.8f};//环境光颜色	
+	static GLfloat mat_specular[] = {0.5f, 0.8f, 0.8f, 0.5f};//镜面反射光颜色
+	static GLfloat mat_shininess = 2.0f;//镜面指数
+
+	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
+
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	static GLfloat lightPosition[4] = { 6.5, 10.0, 14.0, 1.0 };
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+	
 	m_scene->paint();
 
 	glShadeModel(GL_FLAT);
@@ -91,9 +114,10 @@ void TCanvas::mousePressEvent(QMouseEvent * e)
 		m_sketch.clear();
 		m_sketch.append(m_mouseLastPos);
 		setCursor(m_penCursor);
-	}
 
-	m_scene->mapToZPlane(e->posF());
+
+		//m_scene->mapToZPlane(e->posF());
+	}
 }
 
 void TCanvas::mouseMoveEvent(QMouseEvent * e)
@@ -103,12 +127,14 @@ void TCanvas::mouseMoveEvent(QMouseEvent * e)
 	t.setX( - t.x());
 	t /= side / 20.0;
 	if(e->buttons() & Qt::RightButton){
-		m_scene->rotate( - t.x() * 5, QVector3D(0, 1, 0));
-		m_scene->rotate(t.y() * 5, QVector3D(1, 0, 0));
+		/*m_scene->rotate( - t.x() * 5, QVector3D(0, 1, 0));
+		m_scene->rotate(t.y() * 5, QVector3D(1, 0, 0));*/
+		m_scene->camMoveView(t);
 		setCursor(Qt::ClosedHandCursor);
 		update();
 	}else if(e->buttons() & Qt::MidButton){
-		m_scene->translate(- t);
+		//m_scene->translate(- t);
+		m_scene->camMoveCenter(t);
 		update();
 	}else{
 		if(m_sketch.empty()){
@@ -148,7 +174,7 @@ void TCanvas::mouseReleaseEvent(QMouseEvent * e)
 
 void TCanvas::wheelEvent(QWheelEvent * e)
 {
-	m_scene->camZoom(e->delta() / 800.0);
+	m_scene->camZoom(e->delta() / 1000.0);
 	update();
 }
 

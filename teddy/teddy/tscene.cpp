@@ -42,10 +42,8 @@ bool TScene::save(const QString& filename)
 
 void TScene::paint()
 {
-	glMultMatrixd(m_cam.constData());
-	glMultMatrixd(m_mat.constData());
-
-	
+	glLoadIdentity();
+	glMultMatrixd((m_mat * m_cam).constData());
 
 	for(TriMesh::FaceIter fit = m_mesh.faces_begin(); 
 		fit != m_mesh.faces_end();++ fit)
@@ -61,14 +59,16 @@ void TScene::paint()
 		}
 		glEnd();
 	}
+}
 
-	glBegin(GL_TRIANGLES);
-	for(int i = 0; i < markers.size(); i++){
-		QVector3D v = markers.at(i);
-		qglVertex3d(v);
-		qglVertex3d(v + QVector3D(0, .1, 0));
-		qglVertex3d(v + QVector3D(.1, 0, 0));
-	}
+void TScene::paintMarkers()
+{
+	glLoadIdentity();
+	glMultMatrixd((m_mat * m_cam).constData());
+
+	glBegin(GL_LINE_LOOP);
+	for(int i = 0; i < seeds.size(); i++)
+		glVertex3d(seeds[i][0], seeds[i][1], seeds[i][2]);
 	glEnd();
 }
 
@@ -86,12 +86,36 @@ void TScene::setupViewport( int w, int h )
 }
 
 
-TScene::TriMesh::Point TScene::mapToZPlane( const QPointF& screenP, double z )
+QList<TScene::TriMesh::Point> TScene::mapToZPlane( const QVector<QPointF>& screenPs, double z /*= 1.0*/ )
 {
-	int side = qMax(m_canvasWidth, m_canvasHeight);
-	
+	GLint viewport[4];
+	GLdouble modelview[16];
+	GLdouble projection[16];
+	GLdouble winX, winY, winZ;
+	GLdouble posX, posY, posZ;
 
-	
+	int side = qMax(m_canvasWidth, m_canvasHeight);
+	viewport[0] = (m_canvasWidth - side) / 2;
+	viewport[1] = (m_canvasHeight - side) / 2;
+	viewport[2] = viewport[3] = side;
+
+	QList<TriMesh::Point> results;
+
+	foreach(QPointF screenP, screenPs){
+		winX = screenP.x();
+		winY = m_canvasHeight - screenP.y();
+		glReadPixels(screenP.x(), int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
+
+		if(GL_TRUE == gluUnProject( winX, winY, 1, (m_mat * m_cam).constData(), 
+			m_proj.constData(), 
+			viewport, &posX, &posY, &posZ))
+		{
+			QVector3D p(posX, posY, posZ);
+			p = m_cam_eye + (p - m_cam_eye).normalized() * z;
+			results.append(TriMesh::Point(p.x(), p.y(), p.z()));
+		}
+	}
+	return results;
 }
 
 void TScene::camMoveView(const QVector3D& tt)
@@ -100,7 +124,7 @@ void TScene::camMoveView(const QVector3D& tt)
 	QVector3D xv = QVector3D::crossProduct((m_cam_center - m_cam_eye), m_cam_up).normalized();
 	QVector3D yv = QVector3D::crossProduct(xv, (m_cam_center - m_cam_eye)).normalized();
 	QVector3D xyTrans = xv * tt.x() + yv * tt.y();
-	double r = (m_cam_eye - m_cam_center).length() * (1 - 0.1 * tt.z()) / 
+	double r = (m_cam_eye - m_cam_center).length() * (1.0 - 0.1 * tt.z()) / 
 		(m_cam_eye + xyTrans - m_cam_center).length();
 	m_cam_eye = (m_cam_eye + xyTrans - m_cam_center) * r + m_cam_center;
 	m_cam_up = yv.normalized();
@@ -125,7 +149,10 @@ void TScene::camMoveCenter(const QVector3D& tt)
 
 bool TScene::build( const QPolygonF& xyseeds )
 {
-	m_mesh.clear();
+	QList<TriMesh::Point> ponts = mapToZPlane(xyseeds, (m_cam_eye - m_cam_center).length());
+	
+	seeds.clear();
+	seeds << ponts;
 	
 	
 	return true;
