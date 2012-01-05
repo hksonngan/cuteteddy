@@ -2,6 +2,8 @@
 #define TALGORITHM_H
 
 #include <QVector3D>
+#include <QPointF>
+#include <QPolygonF>
 #include <QList>
 
 // need to define _USE_MATH_DEFINES and NOMINMAX in preprocess tab
@@ -10,7 +12,7 @@
 
 typedef OpenMesh::TriMesh_ArrayKernelT<> TriMesh;
 
-void tTriangulate(const QList<QVector3D>& points, TriMesh& mesh);
+void tTriangulate(const QVector<QPointF>& points, TriMesh& mesh);
 
 void tReTriangulate(TriMesh& triMesh);
 

@@ -28,7 +28,9 @@ public:
 
 	// seeds polygons' edge are equal length, seeds.last() != seeds.first()
 	bool build(const QPolygonF& seeds);
+
 	QList<QVector3D> mapToZPlane(const QVector<QPointF>& screenPs, double z = 1.0);
+	void mapToZPlane(TriMesh& mesh, double z = 1.0);
 
 private:
 	TriMesh m_mesh;

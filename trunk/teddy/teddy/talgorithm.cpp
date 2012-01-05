@@ -1,22 +1,32 @@
 #include "talgorithm.h"
 
-void tTriangulate(const QList<QVector3D>& points, TriMesh& mesh)
+void tTrianglulateAddPoint(TriMesh& mesh, QPointF& p)
 {
+
+}
+
+void tTriangulate(const QVector<QPointF>& points, TriMesh& mesh)
+{
+	mesh.clear();
 	if(points.size() < 3)
 		return;
 
 	qreal maxx = -DBL_MAX, minx = DBL_MAX;
 	qreal maxy = -DBL_MAX, miny = DBL_MAX;
-	qreal maxz = -DBL_MAX, minz = DBL_MAX;
 
-	foreach(QVector3D p, points){
+	foreach(QPointF p, points){
 		maxx = maxx < p.x() ? p.x() : maxx;
 		minx = minx > p.x() ? p.x() : minx;
 		maxy = maxy < p.y() ? p.y() : maxy;
 		miny = miny > p.y() ? p.y() : miny;
-		maxz = maxz < p.z() ? p.z() : maxz;
-		minz = minz > p.z() ? p.z() : minz;
 	}
+
+	minx -= 10000*(maxx - minx); miny -= 10000 * (maxy - miny);
+	maxx += 10000*(maxx - minx); maxy += 10000 * (maxy - miny);
+
+	QPointF a1((maxx + minx)/2, (3*maxy - miny)/2), 
+		a2(2*minx - maxx, miny), 
+		a3(2*maxx - minx, miny);
 
 
 }

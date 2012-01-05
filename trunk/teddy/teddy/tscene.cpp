@@ -117,6 +117,11 @@ QList<QVector3D> TScene::mapToZPlane( const QVector<QPointF>& screenPs, double z
 	return results;
 }
 
+void TScene::mapToZPlane(TriMesh& mesh, double z /* = 1.0 */)
+{
+
+}
+
 void TScene::camMoveView(const QVector3D& tt)
 {
 	// like Google earth
@@ -148,14 +153,14 @@ void TScene::camMoveCenter(const QVector3D& tt)
 
 bool TScene::build( const QPolygonF& xyseeds )
 {
+	tTriangulate(xyseeds, m_mesh);
+	tReTriangulate(m_mesh);
+
 	QList<QVector3D> ponts 
 		= mapToZPlane(xyseeds, (m_cam_eye - m_cam_center).length());
 	
 	m_seeds.clear();
 	m_seeds << ponts;
-	
-	tTriangulate(ponts, m_mesh);
-	tReTriangulate(m_mesh);
 	
 	return true;
 }
