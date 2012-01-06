@@ -59,6 +59,8 @@ private:
 	QPointF m_mouseLastPos;
 	QCursor m_penCursor;
 
+	bool m_mouseViewing;
+
 	double m_stepLength;
 	double m_stepLengthRemained;
 };

@@ -3,7 +3,26 @@
 
 #include <QMatrix4x4>
 #include <QPolygonF>
-#include "talgorithm.h"
+
+#include <CGAL/Simple_cartesian.h>
+#include <CGAL/Polyhedron_3.h>
+#include <CGAL/Polyhedron_traits_with_normals_3.h>
+
+typedef CGAL::Simple_cartesian<double> Kernel;
+typedef Kernel::Point_3 Point_3;
+typedef Kernel::Vector_3 Vector_3;
+typedef Kernel::Direction_3 Direction_3;
+
+//typedef CGAL::Polyhedron_traits_with_normals_3<Kernel> Traits;
+typedef CGAL::Polyhedron_3<Kernel> Polyhedron;
+
+typedef Polyhedron::Halfedge_handle Halfedge_handle;
+typedef Polyhedron::Facet_handle Facet_handle;
+typedef Polyhedron::Vertex_handle Vertex_handle;
+typedef Polyhedron::Halfedge_around_facet_circulator HF_circulator;
+typedef Polyhedron::Halfedge_around_facet_const_circulator HF_const_circulator;
+typedef Polyhedron::Halfedge_around_vertex_circulator VF_circulator;
+typedef Polyhedron::Halfedge_around_vertex_const_circulator VF_const_circulator;
 
 class TScene : public QObject
 {
@@ -30,10 +49,10 @@ public:
 	bool build(const QPolygonF& seeds);
 
 	QList<QVector3D> mapToZPlane(const QVector<QPointF>& screenPs, double z = 1.0);
-	void mapToZPlane(TriMesh& mesh, double z = 1.0);
+	//void mapToZPlane(TriMesh& mesh, double z = 1.0);
 
 private:
-	TriMesh m_mesh;
+	Polyhedron m_mesh;
 	QMatrix4x4 m_mat;
 	QMatrix4x4 m_cam;
 	QMatrix4x4 m_proj;
