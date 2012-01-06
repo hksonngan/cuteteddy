@@ -3,6 +3,7 @@
 #include <QMouseEvent>
 #include <QVector3D>
 #include <QVector2D>
+#include <QtDebug>
 
 #ifndef GL_MULTISAMPLE
 #define GL_MULTISAMPLE  0x809D
@@ -11,7 +12,8 @@
 TCanvas::TCanvas(QWidget *parent)
 	: QGLWidget(parent),
 	m_fileInfo(tr(UNTITLED)), 
-	m_penCursor(QPixmap(":/TMainWind/Resources/other/white/pencil_icon&16.png"), 0, 16)
+	m_penCursor(QPixmap(":/TMainWind/Resources/other/white/pencil_icon&16.png"), 0, 16),
+	m_mouseViewing(true)
 {
 	m_scene = new TScene(this);
 
@@ -68,15 +70,15 @@ void TCanvas::paintEvent(QPaintEvent* e)
 
 	m_scene->paintMarkers();
 
-	static GLfloat mat_diffuse[] = {0.5f, 0.5f, 0.8f, .5f};//漫反射光颜色
-	static GLfloat mat_ambient[] = {0.5f, 0.8f, 0.5f, 0.8f};//环境光颜色	
-	static GLfloat mat_specular[] = {0.5f, 0.8f, 0.8f, 0.5f};//镜面反射光颜色
-	static GLfloat mat_shininess = 2.0f;//镜面指数
+	//static GLfloat mat_diffuse[] = {0.5f, 0.5f, 0.8f, .5f};//漫反射光颜色
+	//static GLfloat mat_ambient[] = {0.5f, 0.8f, 0.5f, 0.8f};//环境光颜色	
+	//static GLfloat mat_specular[] = {0.5f, 0.8f, 0.8f, 0.5f};//镜面反射光颜色
+	//static GLfloat mat_shininess = 2.0f;//镜面指数
 
-	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-	glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
+	//glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+	//glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+	//glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	//glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
 
 
 	glEnable(GL_LIGHTING);
@@ -105,38 +107,36 @@ void TCanvas::paintEvent(QPaintEvent* e)
 
 void TCanvas::mousePressEvent(QMouseEvent * e)
 {
+	m_mouseViewing = true;
 	m_mouseLastPos = e->posF();
 	if(e->buttons() & Qt::RightButton)
 		setCursor(Qt::OpenHandCursor);
 	else if(e->buttons() & Qt::MidButton)
 		setCursor(Qt::SizeAllCursor);
 	else{// left button
+		m_mouseViewing = false;
 		m_sketch.clear();
 		m_sketch.append(m_mouseLastPos);
 		setCursor(m_penCursor);
-
-
-		//m_scene->mapToZPlane(e->posF());
 	}
 }
 
 void TCanvas::mouseMoveEvent(QMouseEvent * e)
 {
+	m_mouseViewing = true;
 	QVector3D t(e->posF() - m_mouseLastPos);
 	double side = qMax(width(), height());
 	t.setX( - t.x());
 	t /= side / 20.0;
 	if(e->buttons() & Qt::RightButton){
-		/*m_scene->rotate( - t.x() * 5, QVector3D(0, 1, 0));
-		m_scene->rotate(t.y() * 5, QVector3D(1, 0, 0));*/
 		m_scene->camMoveView(t);
 		setCursor(Qt::ClosedHandCursor);
 		update();
 	}else if(e->buttons() & Qt::MidButton){
-		//m_scene->translate(- t);
 		m_scene->camMoveCenter(t);
 		update();
 	}else{
+		m_mouseViewing = false;
 		if(m_sketch.empty()){
 			m_sketch.append(e->posF());
 			m_stepLengthRemained = 0;
@@ -157,9 +157,23 @@ void TCanvas::mouseMoveEvent(QMouseEvent * e)
 void TCanvas::mouseReleaseEvent(QMouseEvent * e)
 {
 	setCursor(m_penCursor);
+	if(m_mouseViewing)
+		return;
+
 	if(m_mode == Creation){
-		if(m_scene->build(m_sketch)){
-			emit creationFinished();
+		if(m_sketch.size() >= 2){			
+			// close sketch
+			QVector2D v(m_sketch.first() - m_sketch.last());
+			double dist = v.length();
+			m_stepLengthRemained += dist;
+			while(m_stepLengthRemained > m_stepLength){
+				m_stepLengthRemained -= m_stepLength;
+				m_sketch.append(m_sketch.first() - v.normalized().toPointF() * m_stepLengthRemained);
+			}
+
+			if(m_scene->build(m_sketch)){
+				emit creationFinished();
+			}
 			m_sketch.clear();
 		}
 	}else if(m_mode == Painting){

@@ -38,8 +38,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".\GeneratedFiles;&quot;$(QTDIR)\include&quot;;&quot;.\GeneratedFiles\$(ConfigurationName)&quot;;&quot;$(QTDIR)\include\qtmain&quot;;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;;&quot;$(QTDIR)\include\QtOpenGL&quot;;.\;&quot;$(OPENMESH_DIR)\include&quot;"
-				PreprocessorDefinitions="UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_OPENGL_LIB;_USE_MATH_DEFINES;NOMINMAX"
+				AdditionalIncludeDirectories=".\GeneratedFiles;&quot;$(QTDIR)\include&quot;;&quot;.\GeneratedFiles\$(ConfigurationName)&quot;;&quot;$(QTDIR)\include\qtmain&quot;;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;;&quot;$(QTDIR)\include\QtOpenGL&quot;;.\;&quot;$(OPENMESH_DIR)\include&quot;;&quot;$(CGAL_DIR)\include&quot;;&quot;$(CGAL_DIR)\auxiliary\include&quot;"
+				PreprocessorDefinitions="UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_OPENGL_LIB;_USE_MATH_DEFINES;NOMINMAX;CGAL_NO_AUTOLINK_MPFR;CGAL_NO_AUTOLINK_GMP"
 				RuntimeLibrary="2"
 				TreatWChar_tAsBuiltInType="false"
 				DebugInformationFormat="0"
@@ -55,7 +55,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="qtmain.lib QtCore4.lib QtGui4.lib QtOpenGL4.lib opengl32.lib glu32.lib OpenMeshCore.lib OpenMeshTools.lib"
+				AdditionalDependencies="qtmain.lib QtCore4.lib QtGui4.lib QtOpenGL4.lib opengl32.lib glu32.lib OpenMeshCore.lib OpenMeshTools.lib CGAL_Core-vc90-mt.lib CGAL_ImageIO-vc90-mt.lib CGAL_Qt4-vc90-mt.lib CGAL-vc90-mt.lib libatlas.lib libcblas.lib libf77blas.lib libgmp-10.lib liblapack.lib libmetis.lib libmpfr-4.lib libtaucs.lib libtstatlas.lib vcf2c.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				AdditionalLibraryDirectories="$(QTDIR)\lib;$(OPENMESH_DIR)\lib"
 				GenerateDebugInformation="false"
@@ -107,8 +107,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\GeneratedFiles;&quot;$(QTDIR)\include&quot;;&quot;.\GeneratedFiles\$(ConfigurationName)&quot;;&quot;$(QTDIR)\include\qtmain&quot;;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;;&quot;$(QTDIR)\include\QtOpenGL&quot;;.\;&quot;$(OPENMESH_DIR)\include&quot;"
-				PreprocessorDefinitions="UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_CORE_LIB;QT_GUI_LIB;QT_OPENGL_LIB;_USE_MATH_DEFINES;NOMINMAX"
+				AdditionalIncludeDirectories=".\GeneratedFiles;&quot;$(QTDIR)\include&quot;;&quot;.\GeneratedFiles\$(ConfigurationName)&quot;;&quot;$(QTDIR)\include\qtmain&quot;;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;;&quot;$(QTDIR)\include\QtOpenGL&quot;;.\;&quot;$(OPENMESH_DIR)\include&quot;;&quot;$(CGAL_DIR)\include&quot;;&quot;$(CGAL_DIR)\auxiliary\include&quot;"
+				PreprocessorDefinitions="UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_CORE_LIB;QT_GUI_LIB;QT_OPENGL_LIB;_USE_MATH_DEFINES;NOMINMAX;CGAL_NO_AUTOLINK_MPFR;CGAL_NO_AUTOLINK_GMP"
 				RuntimeLibrary="3"
 				TreatWChar_tAsBuiltInType="false"
 				DebugInformationFormat="3"
@@ -124,9 +124,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="qtmaind.lib QtCored4.lib QtGuid4.lib QtOpenGLd4.lib opengl32.lib glu32.lib OpenMeshCored.lib OpenMeshToolsd.lib"
+				AdditionalDependencies="qtmaind.lib QtCored4.lib QtGuid4.lib QtOpenGLd4.lib opengl32.lib glu32.lib OpenMeshCored.lib OpenMeshToolsd.lib CGAL_Core-vc90-mt-gd.lib CGAL_ImageIO-vc90-mt-gd.lib CGAL_Qt4-vc90-mt-gd.lib CGAL-vc90-mt-gd.lib libatlas.lib libcblas.lib libf77blas.lib libgmp-10.lib liblapack.lib libmetis.lib libmpfr-4.lib libtaucs.lib libtstatlas.lib vcf2c.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
-				AdditionalLibraryDirectories="$(QTDIR)\lib;$(OPENMESH_DIR)\lib"
+				AdditionalLibraryDirectories="$(QTDIR)\lib;$(OPENMESH_DIR)\lib;$(CGAL_DIR)\lib;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>
@@ -200,7 +200,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot; &quot;-I$(OPENMESH_DIR)\include&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\qtmain&quot; &quot;-I$(QTDIR)\include\QtOpenGL&quot; &quot;-I.&quot; &quot;-I.\GeneratedFiles&quot; &quot;-I.\GeneratedFiles\$(ConfigurationName)\.&quot; -D_USE_MATH_DEFINES -DNDEBUG -DNOMINMAX -DQT_CORE_LIB -DQT_GUI_LIB -DQT_LARGEFILE_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DUNICODE -DWIN32&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -D_USE_MATH_DEFINES -DNOMINMAX -DCGAL_NO_AUTOLINK_MPFR -DCGAL_NO_AUTOLINK_GMP  &quot;-I.\GeneratedFiles&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I.\GeneratedFiles\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\qtmain&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtOpenGL&quot; &quot;-I.&quot; &quot;-I$(OPENMESH_DIR)\include&quot; &quot;-I$(CGAL_DIR)\include&quot; &quot;-I$(CGAL_DIR)\auxiliary\include&quot; &quot;.\tcanvas.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -211,7 +211,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;  &quot;$(InputPath)&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot; &quot;-I$(OPENMESH_DIR)\include&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\qtmain&quot; &quot;-I$(QTDIR)\include\QtOpenGL&quot; &quot;-I.&quot; &quot;-I.\GeneratedFiles&quot; &quot;-I.\GeneratedFiles\$(ConfigurationName)\.&quot; -D_USE_MATH_DEFINES -DNOMINMAX -DQT_CORE_LIB -DQT_GUI_LIB -DQT_LARGEFILE_SUPPORT -DQT_OPENGL_LIB -DUNICODE -DWIN32&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -D_USE_MATH_DEFINES -DNOMINMAX -DCGAL_NO_AUTOLINK_MPFR -DCGAL_NO_AUTOLINK_GMP  &quot;-I.\GeneratedFiles&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I.\GeneratedFiles\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\qtmain&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtOpenGL&quot; &quot;-I.&quot; &quot;-I$(OPENMESH_DIR)\include&quot; &quot;-I$(CGAL_DIR)\include&quot; &quot;-I$(CGAL_DIR)\auxiliary\include&quot; &quot;.\tcanvas.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -226,7 +226,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -D_USE_MATH_DEFINES -DNOMINMAX  &quot;-I.\GeneratedFiles&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I.\GeneratedFiles\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\qtmain&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtOpenGL&quot; &quot;-I.&quot; &quot;-I$(OPENMESH_DIR)\include&quot; &quot;.\tmainwind.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -D_USE_MATH_DEFINES -DNOMINMAX -DCGAL_NO_AUTOLINK_MPFR -DCGAL_NO_AUTOLINK_GMP  &quot;-I.\GeneratedFiles&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I.\GeneratedFiles\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\qtmain&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtOpenGL&quot; &quot;-I.&quot; &quot;-I$(OPENMESH_DIR)\include&quot; &quot;-I$(CGAL_DIR)\include&quot; &quot;-I$(CGAL_DIR)\auxiliary\include&quot; &quot;.\tmainwind.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
@@ -237,7 +237,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Moc&apos;ing $(InputFileName)..."
-						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -D_USE_MATH_DEFINES -DNOMINMAX  &quot;-I.\GeneratedFiles&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I.\GeneratedFiles\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\qtmain&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtOpenGL&quot; &quot;-I.&quot; &quot;-I$(OPENMESH_DIR)\include&quot; &quot;.\tmainwind.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
+						CommandLine="&quot;$(QTDIR)\bin\moc.exe&quot;   -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -D_USE_MATH_DEFINES -DNOMINMAX -DCGAL_NO_AUTOLINK_MPFR -DCGAL_NO_AUTOLINK_GMP  &quot;-I.\GeneratedFiles&quot; &quot;-I$(QTDIR)\include&quot; &quot;-I.\GeneratedFiles\$(ConfigurationName)\.&quot; &quot;-I$(QTDIR)\include\qtmain&quot; &quot;-I$(QTDIR)\include\QtCore&quot; &quot;-I$(QTDIR)\include\QtGui&quot; &quot;-I$(QTDIR)\include\QtOpenGL&quot; &quot;-I.&quot; &quot;-I$(OPENMESH_DIR)\include&quot; &quot;-I$(CGAL_DIR)\include&quot; &quot;-I$(CGAL_DIR)\auxiliary\include&quot; &quot;.\tmainwind.h&quot; -o &quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="&quot;$(QTDIR)\bin\moc.exe&quot;;$(InputPath)"
 						Outputs="&quot;.\GeneratedFiles\$(ConfigurationName)\moc_$(InputName).cpp&quot;"
 					/>
