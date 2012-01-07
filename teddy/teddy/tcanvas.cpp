@@ -20,7 +20,7 @@ TCanvas::TCanvas(QWidget *parent)
 	setAutoFillBackground(false);
 	setCursor(m_penCursor);
 
-	m_stepLength = m_stepLengthRemained = 1.0;
+	m_stepLength = m_stepLengthRemained = 10.0;
 }
 
 TCanvas::~TCanvas()
@@ -81,11 +81,11 @@ void TCanvas::paintEvent(QPaintEvent* e)
 	//glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
 
 
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	static GLfloat lightPosition[4] = { 6.5, 10.0, 14.0, 1.0 };
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-	
+	//glEnable(GL_LIGHTING);
+	//glEnable(GL_LIGHT0);
+	//static GLfloat lightPosition[4] = { 6.5, 10.0, 14.0, 1.0 };
+	//glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+	//
 	m_scene->paint();
 
 	glShadeModel(GL_FLAT);
@@ -100,7 +100,7 @@ void TCanvas::paintEvent(QPaintEvent* e)
 
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
-	painter.setPen(QPen(Qt::yellow, 2.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+	painter.setPen(QPen(Qt::red, 2.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 	painter.drawPolyline(m_sketch);
 	painter.end();
 }
