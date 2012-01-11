@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <QQueue>
+#include <QMap>
 #include <QList>
 #include <QString>
 #include <QMatrix3x3>
@@ -37,12 +38,15 @@ inline void qglNormal3d(const QVector3D& v){glNormal3d(v.x(), v.y(), v.z());}
 #define qRoundNear(a, b, size) \
 	(abs(a - b) <= 1 || a == 0 && b == (size)-1 || a == (size)-1 && b== 0)
 
-#define FT_INIT_COLOR		TriMesh::Color(2, 0, 0)
-#define FT_INCR_COLOR		TriMesh::Color(-2, 0, 2)
+#define FT_JOINT	0
+#define FT_SLEEVE	1
+#define FT_TERMINAL 2
+#define FT_ISOLATED 3
+#define FT_NEW		5
 
-#define FT_JOINT_COLOR		FT_INIT_COLOR
-#define FT_SLEEVE_COLOR		(FT_INIT_COLOR + FT_INCR_COLOR)
-#define FT_TERMINAL_COLOR	(FT_INIT_COLOR + FT_INCR_COLOR + FT_INCR_COLOR)
+#define FT_JOINT_COLOR		TriMesh::Color(0, 0, 1)
+#define FT_SLEEVE_COLOR		TriMesh::Color(0, 1, 0)
+#define FT_TERMINAL_COLOR	TriMesh::Color(1, 0, 0)
 
 #define ET_AXIS_COLOR		TriMesh::Color(1, 1, 1)
 #define ET_NOAXIS_COLOR		TriMesh::Color(0, 0, 0)
@@ -137,7 +141,7 @@ void TScene::paint()
 		TriMesh::Color c = m_mesh.color(fit.handle());
 		glColor3d(c[0], c[1], c[2]);
 
-		glBegin(GL_TRIANGLE_FAN);
+		glBegin(GL_LINE_LOOP);
 		for(TriMesh::FaceVertexIter fvit = m_mesh.fv_begin(fit);
 			fvit != m_mesh.fv_end(fit); ++fvit)
 		{
@@ -173,6 +177,39 @@ void TScene::setupViewport( int w, int h )
 	glMultMatrixd(m_proj.constData());
 	glMatrixMode(GL_MODELVIEW);
 }
+
+void TScene::camMoveView(const QVector3D& t)
+{
+	// like Google earth
+	QVector3D tt = t * (m_cam_eye - m_cam_center).length() / 4.0;
+
+	QVector3D xv = QVector3D::crossProduct((m_cam_center - m_cam_eye), m_cam_up).normalized();
+	QVector3D yv = QVector3D::crossProduct(xv, (m_cam_center - m_cam_eye)).normalized();
+	QVector3D xyTrans = xv * tt.x() + yv * tt.y();
+	double r = ((m_cam_eye - m_cam_center).length() - tt.z()) / 
+		(m_cam_eye + xyTrans - m_cam_center).length();
+	m_cam_eye = (m_cam_eye + xyTrans - m_cam_center) * r + m_cam_center;
+	m_cam_up = yv.normalized();
+
+	m_cam.setToIdentity();
+	m_cam.lookAt(m_cam_eye, m_cam_center, m_cam_up);
+}
+
+void TScene::camMoveCenter(const QVector3D& t)
+{
+	QVector3D tt = t * (m_cam_eye - m_cam_center).length() / 8.0;
+
+	QVector3D xv = QVector3D::crossProduct((m_cam_center - m_cam_eye), m_cam_up).normalized();
+	QVector3D yv = QVector3D::crossProduct(xv, (m_cam_center - m_cam_eye)).normalized();
+	QVector3D zv = (m_cam_center  - m_cam_eye).normalized();
+	QVector3D trans = xv * tt.x() + yv * tt.y() + zv * tt.z();
+	m_cam_eye += trans;
+	m_cam_center += trans;
+
+	m_cam.setToIdentity();
+	m_cam.lookAt(m_cam_eye, m_cam_center, m_cam_up);
+}
+
 
 
 //QList<QVector3D> TScene::mapToZPlane( const QVector<QPointF>& screenPs, double z /*= 1.0*/ )
@@ -239,40 +276,6 @@ void TScene::mapToZPlane(double z /* = 1.0 */)
 	}
 }
 
-void TScene::camMoveView(const QVector3D& t)
-{
-	// like Google earth
-	QVector3D tt = t * (m_cam_eye - m_cam_center).length() / 4.0;
-
-	QVector3D xv = QVector3D::crossProduct((m_cam_center - m_cam_eye), m_cam_up).normalized();
-	QVector3D yv = QVector3D::crossProduct(xv, (m_cam_center - m_cam_eye)).normalized();
-	QVector3D xyTrans = xv * tt.x() + yv * tt.y();
-	double r = ((m_cam_eye - m_cam_center).length() - tt.z()) / 
-		(m_cam_eye + xyTrans - m_cam_center).length();
-	m_cam_eye = (m_cam_eye + xyTrans - m_cam_center) * r + m_cam_center;
-	m_cam_up = yv.normalized();
-
-	m_cam.setToIdentity();
-	m_cam.lookAt(m_cam_eye, m_cam_center, m_cam_up);
-}
-
-void TScene::camMoveCenter(const QVector3D& t)
-{
-	QVector3D tt = t * (m_cam_eye - m_cam_center).length() / 8.0;
-
-	QVector3D xv = QVector3D::crossProduct((m_cam_center - m_cam_eye), m_cam_up).normalized();
-	QVector3D yv = QVector3D::crossProduct(xv, (m_cam_center - m_cam_eye)).normalized();
-	QVector3D zv = (m_cam_center  - m_cam_eye).normalized();
-	QVector3D trans = xv * tt.x() + yv * tt.y() + zv * tt.z();
-	m_cam_eye += trans;
-	m_cam_center += trans;
-
-	m_cam.setToIdentity();
-	m_cam.lookAt(m_cam_eye, m_cam_center, m_cam_up);
-}
-
-
-
 inline double tDet(double* data)
 {
 	double tmp1 = data[0*3+0] * (data[1*3+1]*data[2*3+2] - data[1*3+2]*data[2*3+1]);
@@ -316,8 +319,7 @@ inline void tPartition(TriMesh& mesh, const std::vector<TriMesh::VertexHandle>& 
 			continue;
 
 		if(is.size() == 3){
-			TriMesh::FaceHandle fi = mesh.add_face(vhs[is[0]], vhs[is[1]], vhs[is[2]]);
-			mesh.set_color(fi, FT_INIT_COLOR);
+			mesh.add_face(vhs[is[0]], vhs[is[1]], vhs[is[2]]);
 		}else{
 			// leftmost
 			int leftmostII = 0;
@@ -434,10 +436,57 @@ void tLegalize(TriMesh& mesh, const TriMesh::VertexHandle& vh,
 	} 
 }
 
-void tReTriangulate(TriMesh& mesh)
+void tDelaunay(TriMesh& mesh)
 {
-	// mark all ear faces
-	std::vector<TriMesh::FaceHandle> terminalFaces;
+	//// delaunay
+	for(TriMesh::VertexIter vi = mesh.vertices_begin();
+		vi != mesh.vertices_end();
+		++ vi)
+	{
+		for(TriMesh::VertexOHalfedgeIter oh = mesh.voh_begin(vi.handle());
+			oh != mesh.voh_end(vi.handle());
+			++ oh)
+		{
+			TriMesh::HalfedgeHandle testh = mesh.next_halfedge_handle(oh.handle());
+			tLegalize(mesh, vi.handle(), testh);
+		}
+	}
+
+	mesh.delete_isolated_vertices();
+	mesh.garbage_collection();
+}
+
+inline double tSqDist(const TriMesh::Point& p1, const TriMesh::Point& p2)
+{
+	TriMesh::Point sub = p1 - p2;
+	return sub[0] * sub[0] + sub[1] * sub[1] + sub[2] * sub[2];
+}
+
+inline int tFaceType(TriMesh& mesh, const TriMesh::FaceHandle& curfh)
+{
+	int t = 0;
+	for(TriMesh::FaceHalfedgeIter fei = mesh.fh_begin(curfh);
+		fei != mesh.fh_end(curfh);
+		++ fei)
+		if(mesh.is_boundary(fei.handle()))
+			t ++;
+	return t;
+}
+
+template <typename T>
+inline void tFillFacesProperty(TriMesh& mesh, OpenMesh::FPropHandleT<T> prop, T v)
+{
+	for(TriMesh::FaceIter fi = mesh.faces_begin();
+		fi != mesh.faces_end();
+		++ fi)
+	{
+		mesh.property(prop, fi.handle()) = v;
+	}
+}
+
+void tClassifyFaces(TriMesh& mesh, OpenMesh::FPropHandleT<int> faceType)
+{
+	tFillFacesProperty<int>(mesh, faceType, 0);
 	for(TriMesh::EdgeIter ei = mesh.edges_begin();
 		ei != mesh.edges_end();
 		++ ei)
@@ -447,75 +496,274 @@ void tReTriangulate(TriMesh& mesh)
 		TriMesh::FaceHandle fh2 = mesh.face_handle(mesh.halfedge_handle(eh, 1));
 
 		if(!mesh.is_valid_handle(fh1)){
-			mesh.set_color(fh2, mesh.color(fh2) + FT_INCR_COLOR);
+			mesh.property(faceType, fh2) = mesh.property(faceType, fh2) + 1;
 		}
 		if(!mesh.is_valid_handle(fh2)){
-			mesh.set_color(fh1, mesh.color(fh1) + FT_INCR_COLOR);
+			mesh.property(faceType, fh1) = mesh.property(faceType, fh1) + 1;
 		}
 	}
+}
 
+inline void tAdjustAllVertices(TriMesh& mesh)
+{
+	for(TriMesh::VertexIter vi = mesh.vertices_begin();
+		vi != mesh.vertices_end();
+		++ vi)
+		mesh.adjust_outgoing_halfedge(vi.handle());
+}
+
+QList<TriMesh::FaceHandle> 
+tSplitJointFaces(TriMesh& mesh, OpenMesh::FPropHandleT<int> faceType)
+{
+	QList<TriMesh::FaceHandle> terminalFaces;
 	for(TriMesh::FaceIter fi = mesh.faces_begin();
 		fi != mesh.faces_end();
 		++ fi)
 	{
 		TriMesh::FaceHandle fh = fi.handle();
-		TriMesh::Color c = mesh.color(fh);
-		if(c == FT_TERMINAL_COLOR)
+		int t = mesh.property(faceType, fh);
+		if(t == FT_TERMINAL){
+			//mesh.set_color(fh, FT_TERMINAL_COLOR);
 			terminalFaces.push_back(fh);
+		}else if(t == FT_SLEEVE){
+			//mesh.set_color(fh, FT_SLEEVE_COLOR);
+		}else if(t == FT_JOINT){
+			//mesh.set_color(fh, FT_JOINT_COLOR);
+			// split joint faces
+			TriMesh::Point c(0, 0, 0);
+			for(TriMesh::FaceVertexIter fvi = mesh.fv_begin(fh);
+				fvi != mesh.fv_end(fh);
+				++ fvi)
+				c += mesh.point(fvi.handle());
+			c /= 3.0;
+
+			TriMesh::VertexHandle nvh = mesh.add_vertex(c);
+			mesh.split(fh, nvh);
+			for(TriMesh::VertexFaceIter vfi = mesh.vf_begin(nvh);
+				vfi != mesh.vf_end(nvh);
+				++ vfi)
+				mesh.property(faceType, vfi.handle()) = FT_NEW;
+		}
 	}
 
-	
+	return terminalFaces;
 }
+
+void tReTopo(TriMesh& mesh)
+{
+	// mark all faces
+	QList<TriMesh::FaceHandle> terminalFaces;
+
+	OpenMesh::FPropHandleT<int> faceType;
+	OpenMesh::FPropHandleT<bool> faceChecked;
+	mesh.add_property(faceType, "face-type");
+	mesh.add_property(faceChecked, "face-checked");
+
+	tFillFacesProperty(mesh, faceChecked, false);
+
+	// classify faces
+	tClassifyFaces(mesh, faceType);
+	terminalFaces = tSplitJointFaces(mesh, faceType);
+	tClassifyFaces(mesh, faceType);
+	tAdjustAllVertices(mesh);
+
+	// remesh terminal faces and sleeve faces
+	for(int i = 0; i < terminalFaces.size(); i++)
+	{	
+		// old record may change
+		if(mesh.property(faceType, terminalFaces[i]) != FT_TERMINAL)
+			continue;
+		if(mesh.property(faceChecked, terminalFaces[i]))
+			continue;
+
+		QList<TriMesh::VertexHandle> collectedVs; // vertices recorded in clockwise
+		QList<TriMesh::FaceHandle> collectedFs; // faces recorded, will be deleted for remesh		
+
+		// insert the boundary point
+		for(TriMesh::FaceVertexIter fvi = mesh.fv_begin(terminalFaces[i]);
+			fvi != mesh.fv_end(terminalFaces[i]);
+			++ fvi)
+		{
+			if(mesh.valence(fvi.handle()) == 2){
+				collectedVs.push_back(fvi.handle());
+				break;
+			}
+		}
+		Q_ASSERT(collectedVs.size() == 1);		
+
+		forever {
+			bool mustStop = false;
+
+			// get curfh
+			if(collectedFs.empty()){
+				collectedFs.push_back(terminalFaces[i]);
+			}else{
+				TriMesh::FaceHandle nextFh;
+				for(TriMesh::FaceFaceIter ffi = mesh.ff_begin(collectedFs.last());
+					ffi != mesh.ff_end(collectedFs.last());
+					++ ffi)
+				{
+					if(!collectedFs.contains(ffi.handle())
+						&& mesh.is_valid_handle(ffi.handle())
+						&& mesh.property(faceType, ffi.handle()) != FT_NEW )
+					{
+						nextFh = ffi.handle();
+						break;
+					}
+				}
+				if(mesh.is_valid_handle(nextFh))
+					collectedFs.push_back(nextFh);
+				else
+					mustStop = true;
+			}
+			TriMesh::FaceHandle curfh = collectedFs.last();
+			mesh.property(faceChecked, curfh) = true;
+
+			int t = mesh.property(faceType, curfh);			
+
+			if(t == FT_SLEEVE || t == FT_TERMINAL){ // sleeve face or terminal face
+				// get next hh2check
+				// this edge should not be a bound
+				TriMesh::HalfedgeHandle hh2check;
+				for(TriMesh::FaceHalfedgeIter fhi = mesh.fh_begin(curfh);
+					fhi != mesh.fh_end(curfh);
+					++ fhi)
+				{
+					TriMesh::FaceHandle oppof = mesh.opposite_face_handle(fhi.handle());
+					if(mesh.is_valid_handle(oppof)
+						&& !collectedFs.contains(oppof))
+					{
+						hh2check = fhi.handle();
+						break;
+					}
+				}
+				Q_ASSERT(mesh.is_valid_handle(hh2check) && !mesh.is_boundary(hh2check));
+
+				// add new vertices
+				TriMesh::VertexHandle right, left; 
+				right = mesh.from_vertex_handle(hh2check); 
+				left = mesh.to_vertex_handle(hh2check);
+				Q_ASSERT(mesh.is_valid_handle(left) && mesh.is_valid_handle(right));
+				if(!collectedVs.contains(left) && mesh.is_valid_handle(left))
+					collectedVs.push_front(left);
+				if(!collectedVs.contains(right) && mesh.is_valid_handle(right))
+					collectedVs.push_back(right);
+
+				// circle check
+				bool inCircle = true;
+				TriMesh::Point center = (mesh.point(right) + mesh.point(left)) / 2.0;
+				double diamSq = tSqDist(mesh.point(right), mesh.point(left));
+				for(int i = 1; i < collectedVs.size()-1; i++)
+				{
+					TriMesh::VertexHandle vh = collectedVs[i];
+					if(tSqDist(mesh.point(vh), center) * 4 > diamSq){
+						inCircle = false;
+						break;
+					}
+				}
+				if(inCircle && !mustStop){	
+					continue;
+				}else{
+					// delete all collected faces
+					foreach(TriMesh::FaceHandle fh, collectedFs)
+						mesh.delete_face(fh, false); // don't delete vertices!!!
+					collectedFs.clear();
+					for(int i = 0; i < collectedVs.size(); i++)
+						mesh.adjust_outgoing_halfedge(collectedVs[i]);
+
+					// add a new vertex on the middle point of hh2check
+					TriMesh::VertexHandle finalvh = mesh.add_vertex(center);
+					mesh.split(mesh.edge_handle(hh2check), finalvh);
+					
+					// rebuild faces
+					for(int i = 1; i < collectedVs.size(); i++)
+						mesh.add_face(finalvh, collectedVs[i-1], collectedVs[i]);
+
+					mesh.adjust_outgoing_halfedge(finalvh);
+					for(int i = 0; i < collectedVs.size(); i++)
+						mesh.adjust_outgoing_halfedge(collectedVs[i]);
+
+					// update type
+					for(TriMesh::VertexFaceIter vfi = mesh.vf_begin(finalvh);
+						vfi != mesh.vf_end(finalvh);
+						++ vfi)
+					{
+						mesh.property(faceChecked, vfi.handle()) = true;
+						mesh.property(faceType, vfi.handle()) = FT_NEW;
+					}
+					break;
+				}
+			}	
+			
+			if(t == FT_JOINT){ // joint face
+				// if meets split joint face, remesh and break immediately
+				// the final vertex
+				TriMesh::VertexHandle finalvh;
+				for(TriMesh::FaceVertexIter fvi = mesh.fv_begin(curfh);
+					fvi != mesh.fv_end(curfh);
+					++ fvi)
+				{
+					if(!mesh.is_boundary(fvi.handle())){
+						finalvh = fvi.handle();
+						break;
+					}
+				}
+				Q_ASSERT(mesh.is_valid_handle(finalvh));
+
+				// now remesh
+				foreach(TriMesh::FaceHandle fh, collectedFs)
+					mesh.delete_face(fh, false);
+				collectedFs.clear();
+				mesh.adjust_outgoing_halfedge(finalvh);
+				for(int i = 0; i < collectedVs.size(); i++)
+					mesh.adjust_outgoing_halfedge(collectedVs[i]);
+
+				for(int i = 1; i < collectedVs.size(); i++)
+					mesh.add_face(finalvh, collectedVs[i-1], collectedVs[i]);
+
+				mesh.adjust_outgoing_halfedge(finalvh);
+				for(int i = 0; i < collectedVs.size(); i++)
+					mesh.adjust_outgoing_halfedge(collectedVs[i]);
+				
+				// update type
+				for(TriMesh::VertexFaceIter vfi = mesh.vf_begin(finalvh);
+					vfi != mesh.vf_end(finalvh);
+					++ vfi)
+				{
+					mesh.property(faceChecked, vfi.handle()) = true;
+					mesh.property(faceType, vfi.handle()) = FT_NEW;
+				}
+				break;
+			}
+		}		
+	}	
+
+	mesh.remove_property(faceType);
+	mesh.remove_property(faceChecked);
+	mesh.garbage_collection();
+}
+
+
 
 bool TScene::build( const QPolygonF& xyseeds )
 {
 	m_mesh.clear();
 	if(xyseeds.empty())
 		return false;
-	//for(int i = 0; i < xyseeds.size(); i++){
-	//	QLineF line1(xyseeds[i], qRoundAt(i+1, xyseeds));
-	//	for(int j = i + 2; j < xyseeds.size(); j++){
-	//		QLineF line2(qRoundAt(j, xyseeds), qRoundAt(j+1, xyseeds));
-	//		if(line1.intersect(line2, 0) == QLineF::BoundedIntersection)
-	//			return false;
-	//	}
-	//}
-	// add type property for faces
 	
-	// partition
 	std::vector<TriMesh::VertexHandle> vhs;
 	for(int i = 0; i < xyseeds.size(); i++)
 		vhs.push_back(m_mesh.add_vertex(TriMesh::Point(xyseeds[i].x(), xyseeds[i].y(), 0)));
+	
 	tPartition(m_mesh, vhs);
+	tDelaunay(m_mesh);
+	tReTopo(m_mesh);
 
-	qDebug() << m_mesh.n_vertices();
-	qDebug() << m_mesh.n_faces();
+	
 
-	//// delaunay
-	for(TriMesh::VertexIter vi = m_mesh.vertices_begin();
-		vi != m_mesh.vertices_end();
-		++ vi)
-	{
-		for(TriMesh::VertexOHalfedgeIter oh = m_mesh.voh_begin(vi.handle());
-			oh != m_mesh.voh_end(vi.handle());
-			++ oh)
-		{
-			TriMesh::HalfedgeHandle testh = m_mesh.next_halfedge_handle(oh.handle());
-			tLegalize(m_mesh, vi.handle(), testh);
-		}
-	}
-
-	/// retriangulate
-	tReTriangulate(m_mesh);	
 
 	mapToZPlane((m_cam_eye - m_cam_center).length());
 	m_mesh.garbage_collection();
-
-	//QList<QVector3D> ponts 
-	//	= mapToZPlane(xyseeds, (m_cam_eye - m_cam_center).length());
-	//
-	//m_seeds.clear();
-	//m_seeds << ponts;
 	
 	return false;
 }
