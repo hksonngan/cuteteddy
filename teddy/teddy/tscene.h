@@ -23,19 +23,7 @@
 //typedef Polyhedron::Halfedge_around_vertex_circulator VF_circulator;
 //typedef Polyhedron::Halfedge_around_vertex_const_circulator VF_const_circulator;
 
-#include <OpenMesh/Core/IO/MeshIO.hh>
-#include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
-#include <OpenMesh/Core/Mesh/PolyMesh_ArrayKernelT.hh>
-
-struct TMeshTraits : public OpenMesh::DefaultTraits
-{
-	VertexAttributes( OpenMesh::Attributes::Normal |  OpenMesh::Attributes::Status);
-	FaceAttributes( OpenMesh::Attributes::Normal | OpenMesh::Attributes::Status | OpenMesh::Attributes::Color);
-	HalfedgeAttributes( OpenMesh::Attributes::Status);
-	EdgeAttributes(OpenMesh::Attributes::Status);
-};
-
-typedef OpenMesh::TriMesh_ArrayKernelT<TMeshTraits> TriMesh;
+#include "talgorithms.h"
 
 class TScene : public QObject
 {
@@ -50,12 +38,14 @@ public:
 	void camMoveView(const QVector3D& trans);
 	void camMoveCenter(const QVector3D& trans);
 	inline void camZoom(double d){camMoveView(QVector3D(0, 0, d));}
+
+	void meshSmooth();
+	void setMeshView(bool face);
 	
 	bool open(const QString& filename);
 	bool save(const QString& filename);
 	
 	void paint();
-	void paintMarkers();
 	void setupViewport(int w, int h);
 
 	// seeds polygons' edge are equal length, seeds.last() != seeds.first()
@@ -67,7 +57,7 @@ public:
 private:
 	//Polyhedron m_mesh;
 	TriMesh m_mesh;
-	OpenMesh::FPropHandleT<int> m_ftype;
+	//OpenMesh::FPropHandleT<int> m_ftype;
 
 	QMatrix4x4 m_mat;
 	QMatrix4x4 m_cam;
@@ -76,7 +66,7 @@ private:
 	
 	QVector3D m_cam_eye, m_cam_center, m_cam_up;
 
-	QList<QVector3D> m_seeds;
+	bool m_faceView;
 };
 
 

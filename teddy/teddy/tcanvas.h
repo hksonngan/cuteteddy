@@ -39,6 +39,10 @@ signals:
 	void toEdit();
 	void extrusionFinished();
 
+public slots:
+	void meshSmooth();
+	void setMeshView(bool useFace);
+
 protected:
 	void initializeGL();
 	void resizeGL(int w, int h);

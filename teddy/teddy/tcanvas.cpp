@@ -20,7 +20,8 @@ TCanvas::TCanvas(QWidget *parent)
 	setAutoFillBackground(false);
 	setCursor(m_penCursor);
 
-	m_stepLength = m_stepLengthRemained = 10.0;
+	m_stepLength = 30.0;
+	m_stepLengthRemained = 0;
 }
 
 TCanvas::~TCanvas()
@@ -63,29 +64,24 @@ void TCanvas::paintEvent(QPaintEvent* e)
 	static GLfloat m_specular[] = {1.f, 1.f, 1.f, 1.f};//镜面反射光颜色
 	static GLfloat m_shininess = 1.0f;//镜面指数
 
-	glMaterialfv(GL_FRONT, GL_AMBIENT, m_ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, m_diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, m_specular);
-	glMaterialf(GL_FRONT, GL_SHININESS, m_shininess);
+	static GLfloat mat_diffuse[] = {0.5f, 0.5f, 0.8f, .5f};//漫反射光颜色
+	static GLfloat mat_ambient[] = {0.5f, 0.8f, 0.5f, 0.8f};//环境光颜色	
+	static GLfloat mat_specular[] = {0.5f, 0.8f, 0.8f, 0.5f};//镜面反射光颜色
+	static GLfloat mat_shininess = 2.0f;//镜面指数
 
-	m_scene->paintMarkers();
+	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
 
-	//static GLfloat mat_diffuse[] = {0.5f, 0.5f, 0.8f, .5f};//漫反射光颜色
-	//static GLfloat mat_ambient[] = {0.5f, 0.8f, 0.5f, 0.8f};//环境光颜色	
-	//static GLfloat mat_specular[] = {0.5f, 0.8f, 0.8f, 0.5f};//镜面反射光颜色
-	//static GLfloat mat_shininess = 2.0f;//镜面指数
-
-	//glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-	//glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-	//glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-	//glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
-
-
-	//glEnable(GL_LIGHTING);
-	//glEnable(GL_LIGHT0);
-	//static GLfloat lightPosition[4] = { 6.5, 10.0, 14.0, 1.0 };
-	//glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-	//
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
+	static GLfloat lightPosition[4] = { 6.5, 10.0, 14.0, 1.0 };
+	static GLfloat lightPosition1[4] = {10, -20, -3, 1};
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+	glLightfv(GL_LIGHT1, GL_POSITION, lightPosition1);
+	
 	m_scene->paint();
 
 	glShadeModel(GL_FLAT);
@@ -220,4 +216,16 @@ void TCanvas::save( const QString& filePath /*= QString()*/ )
 void TCanvas::setMode( TMode m )
 {
 	m_mode = m;
+}
+
+void TCanvas::meshSmooth()
+{
+	m_scene->meshSmooth();
+	update();
+}
+
+void TCanvas::setMeshView( bool useFace )
+{
+	m_scene->setMeshView(useFace);
+	update();
 }

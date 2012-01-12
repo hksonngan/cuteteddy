@@ -12,6 +12,9 @@ TMainWind::TMainWind(QWidget *parent, Qt::WFlags flags)
 {
 	ui.setupUi(this);
 	init();
+
+	connect(ui.actionMeshSmooth, SIGNAL(triggered()), m_canvas, SLOT(meshSmooth()));
+	connect(ui.actionMeshView, SIGNAL(triggered(bool)), m_canvas, SLOT(setMeshView(bool)));
 }
 
 TMainWind::~TMainWind()
@@ -88,16 +91,6 @@ void TMainWind::on_actionSaveAs_triggered()
 	QString filePath = QFileDialog::getSaveFileName(this, tr("Save file as..."), 
 		QString(), tr("OFF file (*.off)"));
 	m_canvas->save(filePath);
-}
-
-void TMainWind::on_actionUndo_triggered()
-{
-
-}
-
-void TMainWind::on_actionRedo_triggered()
-{
-
 }
 
 void TMainWind::on_actionInfo_triggered()
