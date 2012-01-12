@@ -111,8 +111,8 @@ QProgressBar::chunk {
     <property name="title">
      <string>&amp;Edit</string>
     </property>
-    <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
+    <addaction name="actionMeshView"/>
+    <addaction name="actionMeshSmooth"/>
    </widget>
    <widget class="QMenu" name="menuInfo">
     <property name="title">
@@ -151,10 +151,8 @@ QProgressBar::chunk {
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionUndo"/>
-   <addaction name="actionRedo"/>
-   <addaction name="actionInit"/>
-   <addaction name="actionBend"/>
+   <addaction name="actionMeshView"/>
+   <addaction name="actionMeshSmooth"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -219,48 +217,6 @@ QProgressBar::chunk {
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionUndo">
-   <property name="icon">
-    <iconset resource="tmainwind.qrc">
-     <normaloff>:/TMainWind/Resources/toolbar/Back.png</normaloff>:/TMainWind/Resources/toolbar/Back.png</iconset>
-   </property>
-   <property name="text">
-    <string>Undo</string>
-   </property>
-   <property name="toolTip">
-    <string>Undo last operation</string>
-   </property>
-   <property name="statusTip">
-    <string>Undo last operation</string>
-   </property>
-   <property name="whatsThis">
-    <string>Undo last operation</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Z</string>
-   </property>
-  </action>
-  <action name="actionRedo">
-   <property name="icon">
-    <iconset resource="tmainwind.qrc">
-     <normaloff>:/TMainWind/Resources/toolbar/Next.png</normaloff>:/TMainWind/Resources/toolbar/Next.png</iconset>
-   </property>
-   <property name="text">
-    <string>Redo</string>
-   </property>
-   <property name="toolTip">
-    <string>Redo last operation</string>
-   </property>
-   <property name="statusTip">
-    <string>Redo last operation</string>
-   </property>
-   <property name="whatsThis">
-    <string>Redo last operation</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Y</string>
-   </property>
-  </action>
   <action name="actionInfo">
    <property name="icon">
     <iconset resource="tmainwind.qrc">
@@ -290,30 +246,6 @@ QProgressBar::chunk {
     <string>Exit application</string>
    </property>
   </action>
-  <action name="actionInit">
-   <property name="icon">
-    <iconset resource="tmainwind.qrc">
-     <normaloff>:/TMainWind/Resources/toolbar/Loading.png</normaloff>:/TMainWind/Resources/toolbar/Loading.png</iconset>
-   </property>
-   <property name="text">
-    <string>Init</string>
-   </property>
-   <property name="toolTip">
-    <string>Init creation</string>
-   </property>
-  </action>
-  <action name="actionBend">
-   <property name="icon">
-    <iconset resource="tmainwind.qrc">
-     <normaloff>:/TMainWind/Resources/toolbar/Modify.png</normaloff>:/TMainWind/Resources/toolbar/Modify.png</iconset>
-   </property>
-   <property name="text">
-    <string>Bend</string>
-   </property>
-   <property name="toolTip">
-    <string>Bend ?</string>
-   </property>
-  </action>
   <action name="actionSaveAs">
    <property name="icon">
     <iconset resource="tmainwind.qrc">
@@ -333,6 +265,45 @@ QProgressBar::chunk {
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionMeshSmooth">
+   <property name="icon">
+    <iconset resource="tmainwind.qrc">
+     <normaloff>:/TMainWind/Resources/toolbar/Pie Chart.png</normaloff>:/TMainWind/Resources/toolbar/Pie Chart.png</iconset>
+   </property>
+   <property name="text">
+    <string>Mesh Smooth</string>
+   </property>
+   <property name="toolTip">
+    <string>Mesh Smooth</string>
+   </property>
+   <property name="statusTip">
+    <string>Mesh Smooth</string>
+   </property>
+   <property name="whatsThis">
+    <string>Mesh Smooth</string>
+   </property>
+  </action>
+  <action name="actionMeshView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="tmainwind.qrc">
+     <normaloff>:/TMainWind/Resources/toolbar/Picture.png</normaloff>:/TMainWind/Resources/toolbar/Picture.png</iconset>
+   </property>
+   <property name="text">
+    <string>Mesh View</string>
+   </property>
+   <property name="toolTip">
+    <string>Mesh View</string>
+   </property>
+   <property name="statusTip">
+    <string>Mesh View</string>
+   </property>
+   <property name="whatsThis">
+    <string>Mesh View</string>
    </property>
   </action>
  </widget>

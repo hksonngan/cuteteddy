@@ -22,8 +22,6 @@ public slots:
 	void on_actionSave_triggered();
 	void on_actionSaveAs_triggered();
 	
-	void on_actionRedo_triggered();
-	void on_actionUndo_triggered();
 	void on_actionInfo_triggered();
 
 private:
