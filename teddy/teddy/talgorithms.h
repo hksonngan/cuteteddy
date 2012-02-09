@@ -1,14 +1,20 @@
 #ifndef TALGORITHMS_H
 #define TALGORITHMS_H
 
+#include <QList>
+#include <QPolygonF>
+
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
 #include <OpenMesh/Core/Mesh/PolyMesh_ArrayKernelT.hh>
 
 struct TMeshTraits : public OpenMesh::DefaultTraits
 {
-	VertexAttributes( OpenMesh::Attributes::Normal |  OpenMesh::Attributes::Status);
-	FaceAttributes( OpenMesh::Attributes::Normal | OpenMesh::Attributes::Status | OpenMesh::Attributes::Color);
+	VertexAttributes( OpenMesh::Attributes::Normal |  
+		OpenMesh::Attributes::Status);
+	FaceAttributes( OpenMesh::Attributes::Normal | 
+		OpenMesh::Attributes::Status | 
+		OpenMesh::Attributes::Color);
 	HalfedgeAttributes( OpenMesh::Attributes::Status);
 	EdgeAttributes(OpenMesh::Attributes::Status);
 };
@@ -17,7 +23,9 @@ typedef OpenMesh::TriMesh_ArrayKernelT<TMeshTraits> TriMesh;
 
 namespace TAlgorithms
 {
-	void tPartition(TriMesh& mesh, const std::vector<TriMesh::VertexHandle>& vhs);
+	QList<TriMesh::VertexHandle> tEqualize(TriMesh& mesh, 
+		const QPolygonF& poly, double dist = 10.0);
+	void tPartition(TriMesh& mesh, const QList<TriMesh::VertexHandle>& vhs);
 	void tDelaunay(TriMesh& mesh);
 	void tReTopo(TriMesh& mesh);
 	void tSew(TriMesh& mesh, int sep);

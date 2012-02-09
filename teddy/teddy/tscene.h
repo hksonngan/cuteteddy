@@ -49,7 +49,7 @@ public:
 	void setupViewport(int w, int h);
 
 	// seeds polygons' edge are equal length, seeds.last() != seeds.first()
-	bool build(const QPolygonF& seeds);
+	bool build(const QPolygonF& seeds, double stepLength);
 
 	//QList<QVector3D> mapToZPlane(const QVector<QPointF>& screenPs, double z = 1.0);
 	void mapToZPlane(double z = 1.0);

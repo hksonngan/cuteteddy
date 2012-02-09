@@ -80,7 +80,7 @@ void TMainWind::on_actionSave_triggered()
 {
 	if(!m_canvas->fileExists()){
 		QString filePath = QFileDialog::getSaveFileName(this, tr("Save file as..."), 
-			QString(), tr("OFF file (*.off)"));
+			m_canvas->fileInfo().filePath(), tr("OFF file (*.off)"));
 		m_canvas->save(filePath);
 	}else
 		m_canvas->save();
@@ -89,7 +89,7 @@ void TMainWind::on_actionSave_triggered()
 void TMainWind::on_actionSaveAs_triggered()
 {
 	QString filePath = QFileDialog::getSaveFileName(this, tr("Save file as..."), 
-		QString(), tr("OFF file (*.off)"));
+		m_canvas->fileInfo().filePath(), tr("OFF file (*.off)"));
 	m_canvas->save(filePath);
 }
 

@@ -20,8 +20,8 @@ TCanvas::TCanvas(QWidget *parent)
 	setAutoFillBackground(false);
 	setCursor(m_penCursor);
 
-	m_stepLength = 30.0;
-	m_stepLengthRemained = 0;
+	m_stepLength = 22.1;
+	//m_stepLengthRemained = 0;
 }
 
 TCanvas::~TCanvas()
@@ -133,7 +133,7 @@ void TCanvas::mouseMoveEvent(QMouseEvent * e)
 		update();
 	}else{
 		m_mouseViewing = false;
-		if(m_sketch.empty()){
+		/*if(m_sketch.empty()){
 			m_sketch.append(e->posF());
 			m_stepLengthRemained = 0;
 		}else{
@@ -144,7 +144,8 @@ void TCanvas::mouseMoveEvent(QMouseEvent * e)
 				m_stepLengthRemained -= m_stepLength;
 				m_sketch.append(e->posF() - newV.normalized().toPointF() * m_stepLengthRemained);
 			}		
-		}		
+		}		*/
+		m_sketch.append(e->posF());
 		update();
 	}
 	m_mouseLastPos = e->posF();
@@ -159,15 +160,14 @@ void TCanvas::mouseReleaseEvent(QMouseEvent * e)
 	if(m_mode == Creation){
 		if(m_sketch.size() >= 2){			
 			// close sketch
-			QVector2D v(m_sketch.first() - m_sketch.last());
-			double dist = v.length();
-			m_stepLengthRemained += dist;
-			while(m_stepLengthRemained > m_stepLength){
-				m_stepLengthRemained -= m_stepLength;
-				m_sketch.append(m_sketch.first() - v.normalized().toPointF() * m_stepLengthRemained);
-			}
+			//QVector2D v(m_sketch.first() - m_sketch.last());
+			//double dist = v.length();
+			//while(dist > m_stepLength){
+			//	dist -= m_stepLength;
+			//	m_sketch.append(m_sketch.first() - v.normalized().toPointF() * dist);
+			//}
 
-			if(m_scene->build(m_sketch)){
+			if(m_scene->build(m_sketch, m_stepLength)){
 				emit creationFinished();
 			}
 			m_sketch.clear();

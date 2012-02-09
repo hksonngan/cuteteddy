@@ -1,5 +1,7 @@
 #include "talgorithms.h"
 
+#include <QVector3D>
+#include <QVector2D>
 #include <QQueue>
 #include <QMap>
 #include <QList>
@@ -25,7 +27,7 @@
 
 namespace TAlgorithms
 {
-	// math utilities
+	// utilities
 	inline double tDet(double* data)
 	{
 		double tmp1 = data[0*3+0] * (data[1*3+1]*data[2*3+2] - data[1*3+2]*data[2*3+1]);
@@ -79,6 +81,16 @@ namespace TAlgorithms
 		return 4 * tSqDist(p, center) < diamSq && 4 * tSqDist(b, center) < diamSq;*/
 	}
 
+	inline TriMesh::Point tPoint(const QPointF& p)
+	{
+		return TriMesh::Point(p.x(), p.y(), 0);
+	}
+
+	inline TriMesh::Point tPoint(const QVector3D& p)
+	{
+		return TriMesh::Point(p.x(), p.y(), p.z());
+	}
+
 	inline void tAdjustAllVertices(TriMesh& mesh)
 	{
 		for(TriMesh::VertexIter vi = mesh.vertices_begin();
@@ -103,14 +115,29 @@ namespace TAlgorithms
 			++ vi)
 			mesh.property(prop, vi.handle()) = v;
 	}
+	template <typename T>
+	inline void tFillEdgesProperty(TriMesh& mesh, OpenMesh::EPropHandleT<T> prop, T v)
+	{
+		for(TriMesh::EdgeIter ei = mesh.edges_begin();
+			ei != mesh.edges_end();
+			++ ei)
+			mesh.property(prop, ei.handle()) = v;
+	}
+	template <typename T>
+	inline void tFillHalfedgesProperty(TriMesh& mesh, OpenMesh::HPropHandleT<T> prop, T v)
+	{
+		for(TriMesh::HalfedgeIter hi = mesh.halfedges_begin();
+			hi != mesh.halfedges_end();
+			++ hi)
+			mesh.property(prop, hi.handle()) = v;
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// polygon partition
 	//////////////////////////////////////////////////////////////////////////
-	void tPartition(TriMesh& mesh, const std::vector<TriMesh::VertexHandle>& vhs)
+	void tPartition( TriMesh& mesh, const QList<TriMesh::VertexHandle>& vhs )
 	{
-		// use queue!!!
 		QQueue<QList<int> > vhIndexGroupQ;
 		QList<int> indexG;
 		for(int i = 0; i < vhs.size(); i++)
@@ -126,10 +153,9 @@ namespace TAlgorithms
 			if(is.size() <= 2)
 				continue;
 
-			if(is.size() == 3){
+			if(is.size() == 3)
 				mesh.add_face(vhs[is[0]], vhs[is[1]], vhs[is[2]]);
-				//mirror.add_face(vhs[is[2], vhs[is[1]]], vhs[is[0]]);
-			}else{
+			else{
 				// leftmost
 				int leftmostII = 0;
 				TriMesh::Point leftmostP = mesh.point(vhs[is[leftmostII]]);
@@ -227,6 +253,8 @@ namespace TAlgorithms
 	//////////////////////////////////////////////////////////////////////////
 	void tDelaunay(TriMesh& mesh)
 	{
+		for(int i = 0; i < 4; i++)
+		{
 		for(TriMesh::VertexIter vi = mesh.vertices_begin();
 			vi != mesh.vertices_end();
 			++ vi)
@@ -241,16 +269,18 @@ namespace TAlgorithms
 				i++;
 			}
 			mesh.adjust_outgoing_halfedge(vi.handle());
-			qDebug() << i;
+			//qDebug() << i;
+		}
 		}
 
 		mesh.delete_isolated_vertices();
 		mesh.garbage_collection();
 	}
 
+	// classify faces as Joint/Sleeve/Terminal face
 	void tClassifyFaces(TriMesh& mesh, OpenMesh::FPropHandleT<int> faceType)
 	{
-		tFillFacesProperty<int>(mesh, faceType, 0);
+		tFillFacesProperty(mesh, faceType, 0);
 		for(TriMesh::EdgeIter ei = mesh.edges_begin();
 			ei != mesh.edges_end();
 			++ ei)
@@ -266,6 +296,7 @@ namespace TAlgorithms
 		}
 	}
 
+	// split joint face into tree triangles
 	QList<TriMesh::FaceHandle> 
 		tSplitJointFaces(TriMesh& mesh, OpenMesh::FPropHandleT<int> faceType)
 	{
@@ -284,6 +315,7 @@ namespace TAlgorithms
 			}else if(t == FT_JOINT){
 				//mesh.set_color(fh, FT_JOINT_COLOR);
 				// split joint faces
+				// calc center
 				TriMesh::Point c(0, 0, 0);
 				for(TriMesh::FaceVertexIter fvi = mesh.fv_begin(fh);
 					fvi != mesh.fv_end(fh);
@@ -312,20 +344,21 @@ namespace TAlgorithms
 		return true;
 	}
 
-	void tClassifyVertices(TriMesh& mesh, OpenMesh::VPropHandleT<bool> vType){
+	// classify vertices as internal/edge vertex
+	void tClassifyVertices(TriMesh& mesh, OpenMesh::VPropHandleT<bool> vIsInternal){
 		for(TriMesh::VertexIter vi = mesh.vertices_begin();
 			vi != mesh.vertices_end();
 			++ vi){
-				mesh.property(vType, vi.handle()) = tIsInternalVertex(mesh, vi.handle());
+				mesh.property(vIsInternal, vi.handle()) = 
+					tIsInternalVertex(mesh, vi.handle());
 		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	// change mesh topology
+	// build fans
 	//////////////////////////////////////////////////////////////////////////
 	void tReTopo(TriMesh& mesh)
 	{
-		// mark all faces
 		QList<TriMesh::FaceHandle> terminalFaces;
 
 		OpenMesh::FPropHandleT<int> faceType;
@@ -341,17 +374,16 @@ namespace TAlgorithms
 		tClassifyFaces(mesh, faceType);
 		tAdjustAllVertices(mesh);
 
-		// remesh terminal faces and sleeve faces
+		// split terminal faces and sleeve faces
 		for(int i = 0; i < terminalFaces.size(); i++)
-		{	
-			// old record may change
+		{
 			if(mesh.property(faceType, terminalFaces[i]) != FT_TERMINAL)
 				continue;
 			if(mesh.property(faceChecked, terminalFaces[i]))
 				continue;
 
 			QList<TriMesh::VertexHandle> collectedVs; // vertices recorded in clockwise
-			QList<TriMesh::FaceHandle> collectedFs; // faces recorded, will be deleted for remesh		
+			QList<TriMesh::FaceHandle> collectedFs; // faces recorded, will be deleted		
 
 			// insert the boundary point
 			for(TriMesh::FaceVertexIter fvi = mesh.fv_begin(terminalFaces[i]);
@@ -369,9 +401,9 @@ namespace TAlgorithms
 				bool mustStop = false;
 
 				// get curfh
-				if(collectedFs.empty()){
+				if(collectedFs.empty())
 					collectedFs.push_back(terminalFaces[i]);
-				}else{
+				else{
 					TriMesh::FaceHandle nextFh;
 					for(TriMesh::FaceFaceIter ffi = mesh.ff_begin(collectedFs.last());
 						ffi != mesh.ff_end(collectedFs.last());
@@ -397,7 +429,7 @@ namespace TAlgorithms
 
 				if(t == FT_SLEEVE || t == FT_TERMINAL){ // sleeve face or terminal face
 					// get next hh2check
-					// this edge should not be a bound
+					// this edge should not be on boundary
 					TriMesh::HalfedgeHandle hh2check;
 					for(TriMesh::FaceHalfedgeIter fhi = mesh.fh_begin(curfh);
 						fhi != mesh.fh_end(curfh);
@@ -449,7 +481,7 @@ namespace TAlgorithms
 						TriMesh::VertexHandle finalvh = mesh.add_vertex(center);
 						mesh.split(mesh.edge_handle(hh2check), finalvh);
 
-						// rebuild faces
+						// rebuild fans
 						for(int i = 1; i < collectedVs.size(); i++)
 							mesh.add_face(finalvh, collectedVs[i-1], collectedVs[i]);
 
@@ -471,7 +503,7 @@ namespace TAlgorithms
 
 				if(t == FT_JOINT){ // joint face
 					// if meets split joint face, remesh and break immediately
-					// the final vertex
+					// find the final vertex
 					TriMesh::VertexHandle finalvh;
 					for(TriMesh::FaceVertexIter fvi = mesh.fv_begin(curfh);
 						fvi != mesh.fv_end(curfh);
@@ -518,21 +550,18 @@ namespace TAlgorithms
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	// sew strips
+	// sew strips, build chord axis and construct mesh body
 	//////////////////////////////////////////////////////////////////////////
 	void tSew(TriMesh& mesh, int sep)
 	{
 		static const TriMesh::Point z(0, 0, 1);
 
-		OpenMesh::VPropHandleT<bool> vType;
+		OpenMesh::VPropHandleT<bool> vIsInternal;
 		OpenMesh::VPropHandleT<double> vHeight;
-		OpenMesh::VPropHandleT<bool> vIsNew;
-		mesh.add_property(vType, "vertex-type");
+		mesh.add_property(vIsInternal, "vertex-type");
 		mesh.add_property(vHeight, "vertex-height");
-		//mesh.add_property(vIsNew, "vertex-is-new");
 
-		tClassifyVertices(mesh, vType);
-		//tFillVerticesProperty(mesh, vIsNew, false);
+		tClassifyVertices(mesh, vIsInternal);
 
 		// split all cross edges
 		for(TriMesh::HalfedgeIter hi = mesh.halfedges_begin();
@@ -545,17 +574,38 @@ namespace TAlgorithms
 
 			if(mesh.is_valid_handle(mesh.opposite_face_handle(hh)) 
 				&& mesh.is_valid_handle(mesh.face_handle(hh))
-				&& !mesh.property(vType, v1) && !mesh.property(vType, v2))
+				&& !mesh.property(vIsInternal, v1) && !mesh.property(vIsInternal, v2))
 			{ // split cross edge
 				TriMesh::Point p1 = mesh.point(v1);
 				TriMesh::Point p2 = mesh.point(v2);
 				TriMesh::Point center = (p1 + p2) / 2.0;
 				TriMesh::VertexHandle nvh = mesh.add_vertex(center);
 				mesh.split(mesh.edge_handle(hh), nvh);
-				mesh.property(vType, nvh) = true;
-				//mesh.property(vIsNew, nvh) = true;
+				mesh.property(vIsInternal, nvh) = true;
 			}
 		} 
+
+		// calc new internal vertices new pos
+		for(TriMesh::VertexIter vi = mesh.vertices_begin();
+			vi != mesh.vertices_end();
+			++ vi)
+		{
+			if(mesh.property(vIsInternal, vi.handle())){
+				TriMesh::Point newPos(0, 0, 0);
+				int n = 0;
+				for(TriMesh::VertexVertexIter vvi = mesh.vv_begin(vi.handle());
+					vvi != mesh.vv_end(vi.handle());
+					++ vvi)
+				{
+					if(!mesh.property(vIsInternal, vvi.handle())){
+						newPos += mesh.point(vvi.handle());
+						n ++;
+					}
+				}
+				newPos /= n;
+				mesh.set_point(vi.handle(), newPos);
+			}
+		}
 
 		// calc internal vertices heights
 		for(TriMesh::VertexIter vi = mesh.vertices_begin();
@@ -563,25 +613,22 @@ namespace TAlgorithms
 			++ vi)
 		{
 			double height = 0;
-			if(mesh.property(vType, vi.handle())){
+			if(mesh.property(vIsInternal, vi.handle())){
 				TriMesh::Point pos = mesh.point(vi.handle());
-				TriMesh::Point newPos(0, 0, 0);
 				int externalNeighborNum = 0;
 				for(TriMesh::VertexVertexIter vvi = mesh.vv_begin(vi.handle());
 					vvi != mesh.vv_end(vi.handle());
 					++ vvi)
 				{
-					if(!mesh.property(vType, vvi.handle())){
+					if(!mesh.property(vIsInternal, vvi.handle())){
 						height += qSqrt(tSqDist(mesh.point(vvi.handle()), pos));
-						newPos += mesh.point(vvi.handle());
 						externalNeighborNum ++;
 					}
 				}
 				Q_ASSERT(externalNeighborNum != 0);
 				height /= externalNeighborNum;
-				newPos /= externalNeighborNum;
-				newPos += z * height;
-				mesh.set_point(vi.handle(), newPos);
+				pos += z * height;
+				mesh.set_point(vi.handle(), pos);
 			}
 			mesh.property(vHeight, vi.handle()) = height;
 		}
@@ -601,18 +648,18 @@ namespace TAlgorithms
 		// duplicate all internal vertices
 		QMap<TriMesh::VertexHandle, TriMesh::VertexHandle> intvmap;
 		foreach(TriMesh::VertexHandle vh, oldVertices){
-			bool isInternal = mesh.property(vType, vh);
+			bool isInternal = mesh.property(vIsInternal, vh);
 			if(isInternal){
 				TriMesh::Point pos = mesh.point(vh);
 				TriMesh::VertexHandle mirror =
 					mesh.add_vertex(pos - z * 2 * mesh.property(vHeight, vh));
 				mesh.property(vHeight, mirror) = - mesh.property(vHeight, vh);
-				mesh.property(vType, mirror) = true;
+				mesh.property(vIsInternal, mirror) = true;
 				intvmap.insert(vh, mirror);
 			}
 		}
 
-		// construct e-> vs map
+		// construct e-> vs mapping
 		QMap<TriMesh::EdgeHandle, QList<TriMesh::VertexHandle> > evmap1, evmap2;
 		for(TriMesh::EdgeIter ei = mesh.edges_begin();
 			ei != mesh.edges_end();
@@ -622,30 +669,32 @@ namespace TAlgorithms
 			// judge if is half cross edge
 			TriMesh::VertexHandle v1 = mesh.from_vertex_handle(mesh.halfedge_handle(eh, 0));
 			TriMesh::VertexHandle v2 = mesh.from_vertex_handle(mesh.halfedge_handle(eh, 1));
-			if(mesh.property(vType, v1) == mesh.property(vType, v2)) // isn't
+			if(mesh.property(vIsInternal, v1) == mesh.property(vIsInternal, v2)) // isn't
 				continue;
 
-			// update height to point
+			// update height
 			TriMesh::Point p1 = mesh.point(v1);
 			TriMesh::Point p2 = mesh.point(v2);
 
-			if(mesh.property(vType, v2)) // v2 is internal
+			if(mesh.property(vIsInternal, v2)) // v2 is internal
 				qSwap(p1, p2); // keep p1 internal
 
-			TriMesh::Point v = (p1 - p2);
-			qreal stepAngle = 3.1415926 / 2.0 / double(sep);
+			TriMesh::Point v = p1 - p2;
+			qreal stepAngle = 3.141592658 / 2.0 / double(sep);
 			QList<TriMesh::VertexHandle> vs, vsm;
 			for(int i = 1; i < sep; i++){
 				qreal cosR = qCos(stepAngle * i);
 				qreal sinR = qSin(stepAngle * i);
 
-				TriMesh::Point curPos = p2 + TriMesh::Point(v[0] * (1-sinR), v[1] * (1-sinR), v[2] * (cosR)) ;
+				TriMesh::Point curPos = p2 + 
+					TriMesh::Point(v[0] * (1-sinR), v[1] * (1-sinR), v[2] * (cosR)) ;
+
 				TriMesh::VertexHandle vh = mesh.add_vertex(curPos);
-				mesh.property(vType, vh) = true;
+				mesh.property(vIsInternal, vh) = true;
 
 				TriMesh::VertexHandle vhmirror = 
 					mesh.add_vertex(TriMesh::Point(curPos[0], curPos[1], - curPos[2]));
-				mesh.property(vType, vhmirror) = true;
+				mesh.property(vIsInternal, vhmirror) = true;
 
 				vs.append(vh);
 				vsm.append(vhmirror);
@@ -665,9 +714,9 @@ namespace TAlgorithms
 			v[2] = (++ fvi).handle();
 
 			int isInternal[3];
-			isInternal[0] = mesh.property(vType, v[0]) ? 1 : 0;
-			isInternal[1] = mesh.property(vType, v[1]) ? 1 : 0;
-			isInternal[2] = mesh.property(vType, v[2]) ? 1 : 0;
+			isInternal[0] = mesh.property(vIsInternal, v[0]) ? 1 : 0;
+			isInternal[1] = mesh.property(vIsInternal, v[1]) ? 1 : 0;
+			isInternal[2] = mesh.property(vIsInternal, v[2]) ? 1 : 0;
 
 			int sum = isInternal[0] + isInternal[1] + isInternal[2];
 			Q_ASSERT(sum == 1 || sum == 2);
@@ -785,7 +834,7 @@ namespace TAlgorithms
 				vi != mesh.vertices_end();
 				++ vi)
 			{
-				if(mesh.property(vType, vi.handle())){
+				//if(mesh.property(vType, vi.handle())){
 					TriMesh::Point pos(0, 0, 0);// mesh.point(vi.handle());
 					int neighbourNum = 0;
 					for(TriMesh::VertexVertexIter vvi = mesh.vv_begin(vi.handle());
@@ -793,11 +842,11 @@ namespace TAlgorithms
 						++ vvi){pos += mesh.point(vvi.handle()); neighbourNum ++;}
 					pos /= double(neighbourNum);
 					mesh.set_point(vi.handle(), pos);
-				}
+				//}
 			}
 		}
 
-		mesh.remove_property(vType);
+		mesh.remove_property(vIsInternal);
 		mesh.remove_property(vHeight);
 		mesh.garbage_collection();
 	}
@@ -806,5 +855,42 @@ namespace TAlgorithms
 	{
 		OpenMesh::Smoother::JacobiLaplaceSmootherT<TriMesh> smoother(mesh);
 		smoother.smooth(rep);
+	}
+
+	QList<TriMesh::VertexHandle> tEqualize( TriMesh& mesh, 
+		const QPolygonF& poly, double dist /*= 10.0*/ )
+	{
+		QList<TriMesh::VertexHandle> equalVs;
+		
+		if(poly.empty())
+			return equalVs;
+		
+		equalVs << mesh.add_vertex(tPoint(poly.first()));
+		if(poly.size() == 1)
+			return equalVs;
+
+		QPointF last = poly.first();
+		double distRemained = 0;
+		for(int i = 1; i <= poly.size(); i++){
+			QVector2D newV = QVector2D(poly[i % poly.size()] - poly[i-1]);
+			double newDist = newV.length();
+			if(distRemained + newDist < dist){
+				distRemained += newDist;
+				continue;
+			}
+			// distremained + newdist >= dist
+			double d = dist - distRemained;
+			// 0 < d <= newdist
+			for(; d <= newDist; d += dist){
+				QPointF np = newV.normalized().toPointF() * d + poly[i-1];
+				equalVs << mesh.add_vertex(tPoint(np));
+
+				qDebug() << "##" << QVector2D(np - last).length();
+				last = np;
+				distRemained = newDist - d;
+			}			
+		}
+
+		return equalVs;
 	}
 }

@@ -30,16 +30,6 @@ inline void qglVertex3d(const QVector3D& v){glVertex3d(v.x(), v.y(), v.z());}
 inline void qglNormal3d(const QVector3D& v){glNormal3d(v.x(), v.y(), v.z());}
 //inline void cgglNormal3d(const Vector_3& d){glNormal3d(d.x(), d.y(), d.z());}
 
-//#define FT_JOINT_COLOR		TriMesh::Color(0, 0, 1)
-//#define FT_SLEEVE_COLOR		TriMesh::Color(0, 1, 0)
-//#define FT_TERMINAL_COLOR	TriMesh::Color(1, 0, 0)
-//
-//#define ET_AXIS_COLOR		TriMesh::Color(1, 1, 1)
-//#define ET_NOAXIS_COLOR		TriMesh::Color(0, 0, 0)
-//
-//#define VT_AXIS_COLOR		ET_AXIS_COLOR
-//#define VT_NOAXIS_COLOR		ET_NOAXIS_COLOR
-
 TScene::TScene(QObject *parent /* = 0 */)
 	: QObject(parent), m_faceView(false)
 {
@@ -188,6 +178,8 @@ void TScene::mapToZPlane(double z /* = 1.0 */)
 	double eye_center_dist = (m_cam_eye - m_cam_center).length();
 	QVector3D screenCenter(m_canvasWidth / 2.0, m_canvasHeight / 2.0, 0);
 
+	double ratio = - 1.0;
+
 	for(TriMesh::VertexIter vi  = m_mesh.vertices_begin();
 		vi != m_mesh.vertices_end();
 		++ vi)
@@ -207,23 +199,36 @@ void TScene::mapToZPlane(double z /* = 1.0 */)
 			QVector3D r = m_cam_eye + (p - m_cam_eye) / 
 				QVector3D::dotProduct(p - m_cam_eye, (m_cam_center - m_cam_eye).normalized()) * 
 				(m_cam_center - m_cam_eye).length();
-			r = r + (m_cam_center - m_cam_eye).normalized() * (r - m_cam_center).length() / m * qpos.z();
+			if(ratio < 0)
+				ratio = (r - m_cam_center).length() / m;
+			r = r + (m_cam_center - m_cam_eye).normalized() * ratio * qpos.z();
 			m_mesh.set_point(vi.handle(), TriMesh::Point(r.x(), r.y(), r.z()));
 		}
 	}
 }
 
-bool TScene::build( const QPolygonF& xyseeds )
+bool TScene::build( const QPolygonF& xyseeds, double stepLength)
 {
 	m_mesh.clear();
-	if(xyseeds.empty())
+
+	if(xyseeds.size() <= 2)
+		return false;
+
+	/*QPolygonF polygon;
+	polygon << xyseeds.first();
+	for(int i = 1; i < xyseeds.size(); i++)
+		if(QVector2D(polygon.last() - xyseeds[i]).length() >= stepLength)
+			polygon << xyseeds[i];
+
+	if(polygon.size() <= 2)
 		return false;
 	
 	std::vector<TriMesh::VertexHandle> vhs;
-	for(int i = 0; i < xyseeds.size(); i++)
-		vhs.push_back(m_mesh.add_vertex(TriMesh::Point(xyseeds[i].x(), xyseeds[i].y(), 0)));
+	for(int i = 0; i < polygon.size(); i++)
+		vhs.push_back(m_mesh.add_vertex(TriMesh::Point(polygon[i].x(), polygon[i].y(), 0)));*/
 
-	TAlgorithms::tPartition(m_mesh, vhs);
+	TAlgorithms::tPartition(m_mesh, 
+		TAlgorithms::tEqualize(m_mesh, xyseeds, stepLength));
 	TAlgorithms::tDelaunay(m_mesh);
 	TAlgorithms::tReTopo(m_mesh);
 	TAlgorithms::tSew(m_mesh, 10);
