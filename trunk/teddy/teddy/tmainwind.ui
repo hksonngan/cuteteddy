@@ -23,17 +23,19 @@
 	color: #DDDDDD
 } 
 QMenuBar {
-	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 lightgray, stop:1 darkgray);
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 transparent, stop:1 rgba(0, 0, 0, 100));
 }
 QMenuBar::item {
 	padding: 1px 7px;
 	background: transparent;
 }
 QMenuBar::item:selected { /* when selected using mouse or keyboard */
-	background: #a8a8a8;
+    color: white;
+	background: rgba(100, 100, 255, 255);
 }
 QMenuBar::item:pressed {
-	background: #888888;
+    color: white;
+	background: rgba(100, 100, 255, 255);
 }
 QMenu {
 	background-color: #323232; /* sets background of the menu */
@@ -50,11 +52,11 @@ QMenu::item:checked {
 	background-color: #456789
 }
 QToolBar {
-	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 #525252, stop:1 #000000);	
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 rgba(0, 0, 0, 100), stop:1 #000000);	
 	border-color:#2020FF
 }
 QStatusBar {
-	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 black, stop:1 #525252);
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 black, stop:1 rgba(0, 0, 0, 100));
 	color: #DDDDDD
 }
 QDialog {

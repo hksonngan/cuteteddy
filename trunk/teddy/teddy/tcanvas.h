@@ -66,7 +66,6 @@ private:
 	bool m_mouseViewing;
 
 	double m_stepLength;
-	double m_stepLengthRemained;
 };
 
 #endif // TCANVAS_H
