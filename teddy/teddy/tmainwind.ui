@@ -32,10 +32,12 @@ QMenuBar::item {
 QMenuBar::item:selected { /* when selected using mouse or keyboard */
     color: white;
 	background: rgba(100, 100, 255, 255);
+    border-radius: 3px;
 }
 QMenuBar::item:pressed {
     color: white;
 	background: rgba(100, 100, 255, 255);
+	border-radius: 3px, 3px, 0, 0;
 }
 QMenu {
 	background-color: #323232; /* sets background of the menu */
@@ -52,7 +54,7 @@ QMenu::item:checked {
 	background-color: #456789
 }
 QToolBar {
-	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 rgba(0, 0, 0, 100), stop:1 #000000);	
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 rgba(0, 0, 0, 100), stop:1 rgba(0, 0, 0, 100));	
 	border-color:#2020FF
 }
 QStatusBar {
