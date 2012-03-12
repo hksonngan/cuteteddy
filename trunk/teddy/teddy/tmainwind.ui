@@ -55,7 +55,8 @@ QMenu::item:checked {
 }
 QToolBar {
 	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 rgba(0, 0, 0, 100), stop:1 rgba(0, 0, 0, 100));	
-	border-color:#2020FF
+	border-color:#2020FF;
+	height:40px;
 }
 QStatusBar {
 	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 black, stop:1 rgba(0, 0, 0, 100));
