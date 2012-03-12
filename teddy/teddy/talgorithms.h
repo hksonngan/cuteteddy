@@ -27,9 +27,11 @@ namespace TAlgorithms
 		const QPolygonF& poly, double dist = 10.0);
 	void tPartition(TriMesh& mesh, const QList<TriMesh::VertexHandle>& vhs);
 	void tDelaunay(TriMesh& mesh);
+	void tDelaunay2(TriMesh& mesh);
 	void tReTopo(TriMesh& mesh);
 	void tSew(TriMesh& mesh, int sep);
 	void tSmooth(TriMesh& mesh, int rep);
+	bool tIntersectWithRay(TriMesh& mesh, const TriMesh::Point& rayP, const TriMesh::Point& rayD);
 }
 
 #endif // TALGORITHMS_H

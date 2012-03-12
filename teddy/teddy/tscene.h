@@ -45,14 +45,16 @@ public:
 	bool open(const QString& filename);
 	bool save(const QString& filename);
 	
+	void setMat();
 	void paint();
+	void paintStroke();
 	void setupViewport(int w, int h);
 
 	// seeds polygons' edge are equal length, seeds.last() != seeds.first()
 	bool build(const QPolygonF& seeds, double stepLength);
 
-	//QList<QVector3D> mapToZPlane(const QVector<QPointF>& screenPs, double z = 1.0);
-	void mapToZPlane(double z = 1.0);
+	void mapToZPlane();
+	bool insertStrokes(const QPolygonF& seeds);
 
 private:
 	//Polyhedron m_mesh;
@@ -67,6 +69,7 @@ private:
 	QVector3D m_cam_eye, m_cam_center, m_cam_up;
 
 	bool m_faceView;
+	OpenMesh::EPropHandleT<bool> m_edgeIsStroke;
 };
 
 

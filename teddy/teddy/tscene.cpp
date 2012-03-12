@@ -162,7 +162,7 @@ void TScene::camMoveCenter(const QVector3D& t)
 	m_cam.lookAt(m_cam_eye, m_cam_center, m_cam_up);
 }
 
-void TScene::mapToZPlane(double z /* = 1.0 */)
+void TScene::mapToZPlane()
 {
 	GLint viewport[4];
 	GLdouble modelview[16];
